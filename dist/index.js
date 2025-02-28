@@ -148949,6 +148949,7 @@ const DUNE_CACHE = lib_core.getBooleanInput("dune-cache");
 const OCAML_COMPILER = lib_core.getInput("ocaml-compiler", {
     required: true,
 });
+const SAVE_OPAM_POST_RUN = lib_core.getBooleanInput("save-opam-post-run");
 const OPAM_DISABLE_SANDBOXING = 
 // [TODO] unlock this once sandboxing is supported on Windows
 PLATFORM !== "windows" && lib_core.getBooleanInput("opam-disable-sandboxing");
@@ -168199,7 +168200,9 @@ async function installer() {
         await repositoryAddAll(OPAM_REPOSITORIES);
         const ocamlCompiler = await resolvedCompiler;
         await installOcaml(ocamlCompiler);
-        await saveOpamCache();
+        if (!SAVE_OPAM_POST_RUN) {
+            await saveOpamCache();
+        }
     }
     else {
         await update();

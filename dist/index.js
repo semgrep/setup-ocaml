@@ -147136,9 +147136,12 @@ var lib_github = __nccwpck_require__(58064);
 var backoff = __nccwpck_require__(27175);
 // EXTERNAL MODULE: ../../node_modules/systeminformation/lib/index.js
 var lib = __nccwpck_require__(8134);
+;// CONCATENATED MODULE: external "node:fs"
+const external_node_fs_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
 // EXTERNAL MODULE: ../../node_modules/yaml/dist/index.js
 var dist = __nccwpck_require__(33483);
 ;// CONCATENATED MODULE: ./src/constants.ts
+
 
 
 
@@ -147186,6 +147189,16 @@ const PLATFORM = (() => {
         default: {
             throw new Error(`'${external_node_process_.platform}' is not supported. Supported platforms: darwin, freebsd, linux, openbsd, win32`);
         }
+    }
+})();
+const DISTRO = (() => {
+    try {
+        const osRelease = external_node_fs_namespaceObject.readFileSync("/etc/os-release");
+        const match = osRelease.toString().match(/^ID=(.*)$/m);
+        return match ? match[1] : "(unknown)";
+    }
+    catch (e) {
+        return "(unknown)";
     }
 })();
 const CYGWIN_MIRROR = "https://mirrors.kernel.org/sourceware/cygwin/";
@@ -147241,8 +147254,6 @@ const OPAM_REPOSITORIES = (() => {
     return Object.entries(repositoriesYaml).reverse();
 })();
 
-;// CONCATENATED MODULE: external "node:fs"
-const external_node_fs_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
 // EXTERNAL MODULE: ../../node_modules/@actions/tool-cache/lib/tool-cache.js
 var tool_cache = __nccwpck_require__(60532);
 // EXTERNAL MODULE: ../../node_modules/bottleneck/light.js
@@ -147371,13 +147382,23 @@ var semver = __nccwpck_require__(90084);
 ;// CONCATENATED MODULE: ./src/unix.ts
 
 
-async function checkAptInstallability(packageName) {
-    const output = await (0,lib_exec.getExecOutput)("sudo", [
-        "apt-cache",
-        "search",
-        "--names-only",
-        `'^${packageName}$'`,
-    ]);
+async function checkInstallability(packageName) {
+    let output;
+    if (DISTRO === "alpine") {
+        output = await (0,lib_exec.getExecOutput)("apk", [
+            "search",
+            "--exact",
+            packageName,
+        ]);
+    }
+    else {
+        output = await (0,lib_exec.getExecOutput)("sudo", [
+            "apt-cache",
+            "search",
+            "--names-only",
+            `'^${packageName}$'`,
+        ]);
+    }
     return output.stdout.length > 0;
 }
 async function retrieveInstallableOptionalDependencies(optionalDependencies) {
@@ -147385,7 +147406,7 @@ async function retrieveInstallableOptionalDependencies(optionalDependencies) {
         case "linux": {
             const installableOptionalDependencies = [];
             for (const optionalDependency of optionalDependencies) {
-                const isInstallable = await checkAptInstallability(optionalDependency);
+                const isInstallable = await checkInstallability(optionalDependency);
                 if (isInstallable) {
                     installableOptionalDependencies.push(optionalDependency);
                 }
@@ -147398,46 +147419,59 @@ async function retrieveInstallableOptionalDependencies(optionalDependencies) {
     }
 }
 async function installUnixSystemPackages() {
-    if (RUNNER_ENVIRONMENT === "self-hosted") {
-        return;
-    }
-    switch (PLATFORM) {
-        case "linux": {
-            const optionalDependencies = await retrieveInstallableOptionalDependencies([
-                "darcs",
-                "g++-multilib",
-                "gcc-multilib",
-                "mercurial",
-            ]);
-            await (0,lib_exec.exec)("sudo", [
-                "apt-get",
-                "--yes",
-                "install",
-                "bubblewrap",
-                "musl-tools",
-                "rsync",
-                ...optionalDependencies,
-            ]);
-            break;
+    const isGitHubRunner = process.env.GITHUB_ACTIONS === "true";
+    if (isGitHubRunner) {
+        if (PLATFORM === "linux") {
+            if (DISTRO === "alpine") {
+                const optionalDependencies = await retrieveInstallableOptionalDependencies([
+                    //"darcs", does not exist on alpine?
+                    "mercurial",
+                ]);
+                await (0,lib_exec.exec)("apk", [
+                    "add",
+                    "make",
+                    "build-base",
+                    "bubblewrap",
+                    "rsync",
+                    ...optionalDependencies,
+                ]);
+            }
+            else {
+                const optionalDependencies = await retrieveInstallableOptionalDependencies([
+                    "darcs",
+                    "g++-multilib",
+                    "gcc-multilib",
+                    "mercurial",
+                ]);
+                await (0,lib_exec.exec)("sudo", [
+                    "apt-get",
+                    "--yes",
+                    "install",
+                    "bubblewrap",
+                    "musl-tools",
+                    "rsync",
+                    ...optionalDependencies,
+                ]);
+            }
         }
-        case "macos": {
+        else if (PLATFORM === "macos") {
             await (0,lib_exec.exec)("brew", ["install", "darcs", "gpatch", "mercurial"]);
-            break;
         }
     }
 }
 async function updateUnixPackageIndexFiles() {
-    if (RUNNER_ENVIRONMENT === "self-hosted") {
-        return;
-    }
-    switch (PLATFORM) {
-        case "linux": {
-            await (0,lib_exec.exec)("sudo", ["apt-get", "update"]);
-            break;
+    const isGitHubRunner = process.env.GITHUB_ACTIONS === "true";
+    if (isGitHubRunner) {
+        if (PLATFORM === "linux") {
+            if (DISTRO === "alpine") {
+                await (0,lib_exec.exec)("apk", ["update"]);
+            }
+            else {
+                await (0,lib_exec.exec)("sudo", ["apt-get", "update"]);
+            }
         }
-        case "macos": {
+        else if (PLATFORM === "macos") {
             await (0,lib_exec.exec)("brew", ["update"]);
-            break;
         }
     }
 }

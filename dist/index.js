@@ -147638,9 +147638,16 @@ async function repositoryRemoveAll() {
     });
 }
 async function update() {
-    await lib_core.group("Updating opam repositories", async () => {
-        await (0,lib_exec.exec)("opam", ["update"]);
-    });
+    try {
+        await lib_core.group("Updating opam repositories", async () => {
+            await (0,lib_exec.exec)("opam", ["update"]);
+        });
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            lib_core.notice(`Failed to update opam. Error details: ${error.message.toLocaleLowerCase()}`);
+        }
+    }
 }
 
 ;// CONCATENATED MODULE: ./src/version.ts
@@ -166493,9 +166500,9 @@ async function installer() {
         lib_core.addPath(CYGWIN_ROOT_BIN);
     }
     await setupOpam();
+    await repositoryRemoveAll();
+    await repositoryAddAll(OPAM_REPOSITORIES);
     if (!opamCacheHit) {
-        await repositoryRemoveAll();
-        await repositoryAddAll(OPAM_REPOSITORIES);
         const ocamlCompiler = await resolvedCompiler;
         await installOcaml(ocamlCompiler);
         if (!SAVE_OPAM_POST_RUN) {

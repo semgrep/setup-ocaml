@@ -136964,7 +136964,7 @@ var CACHE_PREFIX = core.getInput("cache-prefix");
 var GITHUB_TOKEN = core.getInput("github-token");
 var DUNE_CACHE = core.getBooleanInput("dune-cache");
 var OCAML_COMPILER = core.getInput("ocaml-compiler", {
-  required: true
+  required: false
 });
 var SAVE_OPAM_POST_RUN = core.getBooleanInput("save-opam-post-run");
 var OPAM_DISABLE_SANDBOXING = (
@@ -137440,7 +137440,7 @@ async function resolveVersion(semverVersion) {
   return matchedFullCompilerVersion;
 }
 var resolvedCompiler = (async () => {
-  if (OCAML_COMPILER === "") {
+  if (OCAML_COMPILER === null) {
     return "";
   }
   const resolvedCompiler2 = isSemverValidRange(OCAML_COMPILER) ? `ocaml-base-compiler.${await resolveVersion(OCAML_COMPILER)}` : OCAML_COMPILER;

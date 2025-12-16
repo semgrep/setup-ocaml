@@ -120,7 +120,7 @@ export const GITHUB_TOKEN = core.getInput("github-token");
 export const DUNE_CACHE = core.getBooleanInput("dune-cache");
 
 export const OCAML_COMPILER = core.getInput("ocaml-compiler", {
-  required: true,
+  required: false,
 });
 
 export const SAVE_OPAM_POST_RUN = core.getBooleanInput("save-opam-post-run");

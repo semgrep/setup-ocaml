@@ -53,7 +53,7 @@ async function resolveVersion(semverVersion: string) {
 }
 
 export const resolvedCompiler = (async () => {
-  if (OCAML_COMPILER === null) {
+  if (OCAML_COMPILER === "empty") {
     return "";
   }
   const resolvedCompiler = isSemverValidRange(OCAML_COMPILER)

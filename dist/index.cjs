@@ -151431,19 +151431,22 @@ async function getCygwinVersion() {
   const response = await httpClient.get("https://www.cygwin.com");
   const body = await response.readBody();
   const $2 = load(body);
-  let version = "";
+  let version = null;
   $2("a").each((_index, element) => {
     const text3 = $2(element).text();
     if (semver3.valid(text3) === text3) {
       version = text3;
     }
   });
-  return version;
+  if (version !== null) {
+    return version;
+  } else {
+    throw new Error("Couldn't parse Cygwin version from homepage");
+  }
 }
 async function setupCygwin() {
   await core4.group("Setting up Cygwin environment", async () => {
-    const version = await getCygwinVersion();
-    const cachedPath = toolCache2.find("cygwin", version, "x86_64");
+    const cachedPath = toolCache2.find("cygwin", "latest", "x86_64");
     if (cachedPath === "") {
       const downloadedPath = await toolCache2.downloadTool(
         "https://cygwin.com/setup-x86_64.exe"
@@ -151452,7 +151455,7 @@ async function setupCygwin() {
         downloadedPath,
         "setup-x86_64.exe",
         "cygwin",
-        version,
+        "latest",
         "x86_64"
       );
       core4.addPath(cachedPath2);

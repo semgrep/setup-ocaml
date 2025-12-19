@@ -26,20 +26,23 @@ export async function getCygwinVersion() {
   const response = await httpClient.get("https://www.cygwin.com");
   const body = await response.readBody();
   const $ = cheerio.load(body);
-  let version = "";
+  let version = null;
   $("a").each((_index, element) => {
     const text = $(element).text();
     if (semver.valid(text) === text) {
       version = text;
     }
   });
-  return version;
+  if (version !== null) {
+    return version;
+  } else {
+    throw new Error("Couldn't parse Cygwin version from homepage");
+  }
 }
 
 export async function setupCygwin() {
   await core.group("Setting up Cygwin environment", async () => {
-    const version = await getCygwinVersion();
-    const cachedPath = toolCache.find("cygwin", version, "x86_64");
+    const cachedPath = toolCache.find("cygwin", "latest", "x86_64");
     if (cachedPath === "") {
       const downloadedPath = await toolCache.downloadTool(
         "https://cygwin.com/setup-x86_64.exe",
@@ -48,7 +51,7 @@ export async function setupCygwin() {
         downloadedPath,
         "setup-x86_64.exe",
         "cygwin",
-        version,
+        "latest",
         "x86_64",
       );
       core.addPath(cachedPath);

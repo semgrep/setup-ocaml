@@ -151441,6 +151441,8 @@ async function getCygwinVersion() {
   if (version !== null) {
     return version;
   } else {
+    core4.info("Cygwin homepage:");
+    core4.info(body);
     throw new Error("Couldn't parse Cygwin version from homepage");
   }
 }

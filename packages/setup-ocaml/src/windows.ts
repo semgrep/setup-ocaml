@@ -36,6 +36,8 @@ export async function getCygwinVersion() {
   if (version !== null) {
     return version;
   } else {
+    core.info("Cygwin homepage:");
+    core.info(body);
     throw new Error("Couldn't parse Cygwin version from homepage");
   }
 }

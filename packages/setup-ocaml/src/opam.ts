@@ -9,7 +9,7 @@ import * as semver from "semver";
 import {
   ALLOW_PRERELEASE_OPAM,
   ARCHITECTURE,
-  CYGWIN_ROOT,
+  CYGWIN_EXTRA_PACKAGES,
   GITHUB_TOKEN,
   OPAM_DISABLE_SANDBOXING,
   PLATFORM,
@@ -104,8 +104,10 @@ async function initializeOpam() {
     }
     const extraOptions = [];
     if (PLATFORM === "windows") {
-      extraOptions.push("--cygwin-local-install");
-      extraOptions.push(`--cygwin-location=${CYGWIN_ROOT}`);
+      extraOptions.push("--cygwin-internal-install");
+      extraOptions.push(
+        `--cygwin-extra-packages=${CYGWIN_EXTRA_PACKAGES.join(",")}`,
+      );
     }
     if (OPAM_DISABLE_SANDBOXING) {
       extraOptions.push("--disable-sandboxing");

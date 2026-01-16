@@ -107306,10 +107306,6 @@ var DISTRO = (() => {
   }
 })();
 var GITHUB_WORKSPACE = process2.env.GITHUB_WORKSPACE ?? process2.cwd();
-var CYGWIN_ROOT = path.join("C:", "cygwin");
-var CYGWIN_ROOT_BIN = path.join(CYGWIN_ROOT, "bin");
-var CYGWIN_LOCAL_PACKAGE_DIR = path.join(CYGWIN_ROOT, "packages");
-var CYGWIN_BASH_ENV = path.join(CYGWIN_ROOT, "bash_env");
 var DUNE_CACHE_ROOT = (() => {
   const xdgCacheHome = process2.env.XDG_CACHE_HOME;
   if (xdgCacheHome) {

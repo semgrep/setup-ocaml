@@ -10,7 +10,6 @@ import * as system from "systeminformation";
 import {
   ARCHITECTURE,
   CACHE_PREFIX,
-  CYGWIN_ROOT,
   DUNE_CACHE_ROOT,
   GITHUB_WORKSPACE,
   OPAM_DISABLE_SANDBOXING,
@@ -20,14 +19,6 @@ import {
 } from "./constants.js";
 import { latestOpamRelease } from "./opam.js";
 import { resolvedCompiler } from "./version.js";
-import { getCygwinVersion } from "./windows.js";
-
-async function composeCygwinCacheKeys() {
-  const version = await getCygwinVersion();
-  const key = `${CACHE_PREFIX}-setup-ocaml-cygwin-${version}`;
-  const restoreKeys = [key];
-  return { key, restoreKeys };
-}
 
 async function composeDuneCacheKeys() {
   const { workflow, job, runId } = github.context;
@@ -64,12 +55,6 @@ async function composeOpamCacheKeys() {
   const restoreKeys = [key];
   core.debug(`opam cache key: ${plainKey}`);
   return { key, restoreKeys };
-}
-
-function composeCygwinCachePaths() {
-  const cygwinRootSymlinkPath = path.posix.join("/cygdrive", "d", "cygwin");
-  const paths = [CYGWIN_ROOT, cygwinRootSymlinkPath];
-  return paths;
 }
 
 function composeDuneCachePaths() {
@@ -167,13 +152,6 @@ export async function restoreDuneCache() {
   });
 }
 
-async function restoreCygwinCache() {
-  const { key, restoreKeys } = await composeCygwinCacheKeys();
-  const paths = composeCygwinCachePaths();
-  const cacheKey = await restoreCache(key, restoreKeys, paths);
-  return cacheKey;
-}
-
 async function restoreOpamCache() {
   const { key, restoreKeys } = await composeOpamCacheKeys();
   const paths = composeOpamCachePaths();
@@ -183,28 +161,8 @@ async function restoreOpamCache() {
 
 export async function restoreOpamCaches() {
   return await core.group("Restoring opam cache", async () => {
-    const [opamCache, cygwinCache] = await Promise.allSettled(
-      PLATFORM === "windows"
-        ? [restoreOpamCache(), restoreCygwinCache()]
-        : [restoreOpamCache()],
-    );
-    let opamCacheHit: string | undefined;
-    let cygwinCacheHit: string | undefined;
-    if (opamCache.status === "fulfilled") {
-      opamCacheHit = opamCache.value;
-    }
-    if (cygwinCache?.status === "fulfilled") {
-      cygwinCacheHit = cygwinCache.value;
-    }
-    return { opamCacheHit, cygwinCacheHit };
-  });
-}
-
-export async function saveCygwinCache() {
-  await core.group("Saving Cygwin cache", async () => {
-    const { key } = await composeCygwinCacheKeys();
-    const paths = composeCygwinCachePaths();
-    await saveCache(key, paths);
+    const opamCacheHit = await restoreOpamCache();
+    return { opamCacheHit };
   });
 }
 

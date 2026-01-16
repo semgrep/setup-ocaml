@@ -64,17 +64,20 @@ export const DISTRO = (() => {
     return "(unknown)";
   }
 })();
-export const CYGWIN_MIRROR = "https://mirrors.kernel.org/sourceware/cygwin/";
-
 export const GITHUB_WORKSPACE = process.env.GITHUB_WORKSPACE ?? process.cwd();
 
-export const CYGWIN_ROOT = path.join("C:", "cygwin");
-
-export const CYGWIN_ROOT_BIN = path.join(CYGWIN_ROOT, "bin");
-
-export const CYGWIN_LOCAL_PACKAGE_DIR = path.join(CYGWIN_ROOT, "packages");
-
-export const CYGWIN_BASH_ENV = path.join(CYGWIN_ROOT, "bash_env");
+// Extra packages to install with opam's internal Cygwin (opam defaults: make, tar, unzip, rsync)
+export const CYGWIN_EXTRA_PACKAGES = [
+  "curl",
+  "diffutils",
+  "m4",
+  "mingw64-i686-gcc-core",
+  "mingw64-i686-gcc-g++",
+  "mingw64-x86_64-gcc-core",
+  "mingw64-x86_64-gcc-g++",
+  "patch",
+  "perl",
+];
 
 export const DUNE_CACHE_ROOT = (() => {
   const xdgCacheHome = process.env.XDG_CACHE_HOME;

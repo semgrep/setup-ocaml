@@ -19432,7 +19432,7 @@ var require_exec = __commonJS({
       });
     }
     exports2.exec = exec6;
-    function getExecOutput4(commandLine, args, options) {
+    function getExecOutput3(commandLine, args, options) {
       var _a, _b;
       return __awaiter2(this, void 0, void 0, function* () {
         let stdout = "";
@@ -19464,7 +19464,7 @@ var require_exec = __commonJS({
         };
       });
     }
-    exports2.getExecOutput = getExecOutput4;
+    exports2.getExecOutput = getExecOutput3;
   }
 });
 
@@ -108438,6 +108438,8 @@ var OPAM_ROOT = (() => {
   }
   return path.join(os.homedir(), ".opam");
 })();
+var CYGWIN_ROOT = path.join(OPAM_ROOT, ".cygwin", "root");
+var CYGWIN_ROOT_BIN = path.join(CYGWIN_ROOT, "bin");
 var RUNNER_ENVIRONMENT = (() => {
   const ImageOS = process2.env.ImageOS;
   const RUNNER_ENVIRONMENT2 = process2.env.RUNNER_ENVIRONMENT;
@@ -109119,16 +109121,6 @@ async function retrieveOpamLocalPackages() {
 }
 
 // src/installer.ts
-async function getCygwinRoot() {
-  const { stdout } = await (0, import_exec5.getExecOutput)("opam", [
-    "exec",
-    "--",
-    "cygpath",
-    "-w",
-    "/"
-  ]);
-  return stdout.trim();
-}
 async function installer() {
   if (core6.isDebug()) {
     core6.exportVariable("OPAMVERBOSE", 1);
@@ -109162,12 +109154,10 @@ async function installer() {
   const { opamCacheHit } = await restoreOpamCaches();
   await setupOpam();
   if (PLATFORM === "windows") {
-    const cygwinRoot = await getCygwinRoot();
-    const bashEnvPath = path5.join(cygwinRoot, "bash_env");
+    const bashEnvPath = path5.join(CYGWIN_ROOT, "bash_env");
     await fs4.writeFile(bashEnvPath, "set -o igncr");
     core6.exportVariable("BASH_ENV", bashEnvPath);
-    const cygwinRootBin = path5.join(cygwinRoot, "bin");
-    core6.addPath(cygwinRootBin);
+    core6.addPath(CYGWIN_ROOT_BIN);
   }
   await repositoryRemoveAll();
   await repositoryAddAll(OPAM_REPOSITORIES);

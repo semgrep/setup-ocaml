@@ -107322,6 +107322,8 @@ var OPAM_ROOT = (() => {
   }
   return path.join(os.homedir(), ".opam");
 })();
+var CYGWIN_ROOT = path.join(OPAM_ROOT, ".cygwin", "root");
+var CYGWIN_ROOT_BIN = path.join(CYGWIN_ROOT, "bin");
 var RUNNER_ENVIRONMENT = (() => {
   const ImageOS = process2.env.ImageOS;
   const RUNNER_ENVIRONMENT2 = process2.env.RUNNER_ENVIRONMENT;

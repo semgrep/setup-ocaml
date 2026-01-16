@@ -108966,7 +108966,8 @@ async function composeOpamCacheKeys() {
     opamVersion,
     ocamlCompiler,
     repositoryUrls,
-    sandbox
+    sandbox,
+    "v2"
   ].join();
   const hash = crypto2.createHash("sha256").update(plainKey).digest("hex");
   const key = `${CACHE_PREFIX}-setup-ocaml-opam-${hash}`;

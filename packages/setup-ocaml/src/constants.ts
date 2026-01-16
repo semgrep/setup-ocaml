@@ -97,6 +97,11 @@ export const OPAM_ROOT = (() => {
   return path.join(os.homedir(), ".opam");
 })();
 
+// opam's internal Cygwin installation paths (only used on Windows)
+export const CYGWIN_ROOT = path.join(OPAM_ROOT, ".cygwin", "root");
+
+export const CYGWIN_ROOT_BIN = path.join(CYGWIN_ROOT, "bin");
+
 export const RUNNER_ENVIRONMENT = ((): "github-hosted" | "self-hosted" => {
   const ImageOS = process.env.ImageOS;
   const RUNNER_ENVIRONMENT = process.env.RUNNER_ENVIRONMENT as

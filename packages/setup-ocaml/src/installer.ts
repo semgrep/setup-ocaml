@@ -1,17 +1,11 @@
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
+import * as path from "node:path";
 import * as process from "node:process";
 import * as core from "@actions/core";
-import { exec } from "@actions/exec";
+import { exec, getExecOutput } from "@actions/exec";
+import { restoreDuneCache, restoreOpamCaches, saveOpamCache } from "./cache.js";
 import {
-  restoreDuneCache,
-  restoreOpamCaches,
-  saveCygwinCache,
-  saveOpamCache,
-} from "./cache.js";
-import {
-  CYGWIN_BASH_ENV,
-  CYGWIN_ROOT_BIN,
   DUNE_CACHE,
   DUNE_CACHE_ROOT,
   OPAM_PIN,
@@ -31,7 +25,17 @@ import {
 } from "./opam.js";
 import { retrieveOpamLocalPackages } from "./packages.js";
 import { resolvedCompiler } from "./version.js";
-import { fixFstab, setupCygwin } from "./windows.js";
+
+async function getCygwinRoot(): Promise<string> {
+  const { stdout } = await getExecOutput("opam", [
+    "exec",
+    "--",
+    "cygpath",
+    "-w",
+    "/",
+  ]);
+  return stdout.trim();
+}
 
 export async function installer() {
   if (core.isDebug()) {
@@ -64,18 +68,16 @@ export async function installer() {
       await exec("fsutil", ["behavior", "query", "SymlinkEvaluation"]);
     });
   }
-  const { opamCacheHit, cygwinCacheHit } = await restoreOpamCaches();
-  if (PLATFORM === "windows") {
-    await setupCygwin();
-    if (!cygwinCacheHit) {
-      await saveCygwinCache();
-    }
-    await fs.writeFile(CYGWIN_BASH_ENV, "set -o igncr");
-    core.exportVariable("BASH_ENV", CYGWIN_BASH_ENV);
-    await fixFstab();
-    core.addPath(CYGWIN_ROOT_BIN);
-  }
+  const { opamCacheHit } = await restoreOpamCaches();
   await setupOpam();
+  if (PLATFORM === "windows") {
+    const cygwinRoot = await getCygwinRoot();
+    const bashEnvPath = path.join(cygwinRoot, "bash_env");
+    await fs.writeFile(bashEnvPath, "set -o igncr");
+    core.exportVariable("BASH_ENV", bashEnvPath);
+    const cygwinRootBin = path.join(cygwinRoot, "bin");
+    core.addPath(cygwinRootBin);
+  }
   await repositoryRemoveAll();
   await repositoryAddAll(OPAM_REPOSITORIES);
   if (!opamCacheHit) {

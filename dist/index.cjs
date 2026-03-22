@@ -4269,18 +4269,18 @@ var require_webidl = __commonJS({
     webidl.errors.exception = function(message) {
       return new TypeError(`${message.header}: ${message.message}`);
     };
-    webidl.errors.conversionFailed = function(context3) {
-      const plural = context3.types.length === 1 ? "" : " one of";
-      const message = `${context3.argument} could not be converted to${plural}: ${context3.types.join(", ")}.`;
+    webidl.errors.conversionFailed = function(context2) {
+      const plural = context2.types.length === 1 ? "" : " one of";
+      const message = `${context2.argument} could not be converted to${plural}: ${context2.types.join(", ")}.`;
       return webidl.errors.exception({
-        header: context3.prefix,
+        header: context2.prefix,
         message
       });
     };
-    webidl.errors.invalidArgument = function(context3) {
+    webidl.errors.invalidArgument = function(context2) {
       return webidl.errors.exception({
-        header: context3.prefix,
-        message: `"${context3.value}" is an invalid ${context3.type}.`
+        header: context2.prefix,
+        message: `"${context2.value}" is an invalid ${context2.type}.`
       });
     };
     webidl.brandCheck = function(V, I, opts = void 0) {
@@ -9606,15 +9606,15 @@ var require_api_request = __commonJS({
         }
         addSignal(this, signal);
       }
-      onConnect(abort, context3) {
+      onConnect(abort, context2) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context3;
+        this.context = context2;
       }
       onHeaders(statusCode, rawHeaders, resume, statusMessage) {
-        const { callback, opaque, abort, context: context3, responseHeaders, highWaterMark } = this;
+        const { callback, opaque, abort, context: context2, responseHeaders, highWaterMark } = this;
         const headers = responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
         if (statusCode < 200) {
           if (this.onInfo) {
@@ -9641,7 +9641,7 @@ var require_api_request = __commonJS({
               trailers: this.trailers,
               opaque,
               body,
-              context: context3
+              context: context2
             });
           }
         }
@@ -9761,15 +9761,15 @@ var require_api_stream = __commonJS({
         }
         addSignal(this, signal);
       }
-      onConnect(abort, context3) {
+      onConnect(abort, context2) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context3;
+        this.context = context2;
       }
       onHeaders(statusCode, rawHeaders, resume, statusMessage) {
-        const { factory, opaque, context: context3, callback, responseHeaders } = this;
+        const { factory, opaque, context: context2, callback, responseHeaders } = this;
         const headers = responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
         if (statusCode < 200) {
           if (this.onInfo) {
@@ -9797,7 +9797,7 @@ var require_api_stream = __commonJS({
             statusCode,
             headers,
             opaque,
-            context: context3
+            context: context2
           });
           if (!res || typeof res.write !== "function" || typeof res.end !== "function" || typeof res.on !== "function") {
             throw new InvalidReturnValueError("expected Writable");
@@ -9989,17 +9989,17 @@ var require_api_pipeline = __commonJS({
         this.res = null;
         addSignal(this, signal);
       }
-      onConnect(abort, context3) {
+      onConnect(abort, context2) {
         const { ret, res } = this;
         assert(!res, "pipeline cannot be retried");
         if (ret.destroyed) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context3;
+        this.context = context2;
       }
       onHeaders(statusCode, rawHeaders, resume) {
-        const { opaque, handler, context: context3 } = this;
+        const { opaque, handler, context: context2 } = this;
         if (statusCode < 200) {
           if (this.onInfo) {
             const headers = this.responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
@@ -10017,7 +10017,7 @@ var require_api_pipeline = __commonJS({
             headers,
             opaque,
             body: this.res,
-            context: context3
+            context: context2
           });
         } catch (err) {
           this.res.on("error", util.nop);
@@ -10101,7 +10101,7 @@ var require_api_upgrade = __commonJS({
         this.context = null;
         addSignal(this, signal);
       }
-      onConnect(abort, context3) {
+      onConnect(abort, context2) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
@@ -10112,7 +10112,7 @@ var require_api_upgrade = __commonJS({
         throw new SocketError("bad upgrade", null);
       }
       onUpgrade(statusCode, rawHeaders, socket) {
-        const { callback, opaque, context: context3 } = this;
+        const { callback, opaque, context: context2 } = this;
         assert.strictEqual(statusCode, 101);
         removeSignal(this);
         this.callback = null;
@@ -10121,7 +10121,7 @@ var require_api_upgrade = __commonJS({
           headers,
           socket,
           opaque,
-          context: context3
+          context: context2
         });
       }
       onError(err) {
@@ -10189,18 +10189,18 @@ var require_api_connect = __commonJS({
         this.abort = null;
         addSignal(this, signal);
       }
-      onConnect(abort, context3) {
+      onConnect(abort, context2) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context3;
+        this.context = context2;
       }
       onHeaders() {
         throw new SocketError("bad connect", null);
       }
       onUpgrade(statusCode, rawHeaders, socket) {
-        const { callback, opaque, context: context3 } = this;
+        const { callback, opaque, context: context2 } = this;
         removeSignal(this);
         this.callback = null;
         let headers = rawHeaders;
@@ -10212,7 +10212,7 @@ var require_api_connect = __commonJS({
           headers,
           socket,
           opaque,
-          context: context3
+          context: context2
         });
       }
       onError(err) {
@@ -24245,14 +24245,14 @@ function __esDecorate(ctor, descriptorIn, decorators, contextIn, initializers, e
   var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
   var _, done = false;
   for (var i = decorators.length - 1; i >= 0; i--) {
-    var context3 = {};
-    for (var p in contextIn) context3[p] = p === "access" ? {} : contextIn[p];
-    for (var p in contextIn.access) context3.access[p] = contextIn.access[p];
-    context3.addInitializer = function(f) {
+    var context2 = {};
+    for (var p in contextIn) context2[p] = p === "access" ? {} : contextIn[p];
+    for (var p in contextIn.access) context2.access[p] = contextIn.access[p];
+    context2.addInitializer = function(f) {
       if (done) throw new TypeError("Cannot add initializers after decoration has completed");
       extraInitializers.push(accept(f || null));
     };
-    var result2 = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context3);
+    var result2 = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context2);
     if (kind === "accessor") {
       if (result2 === void 0) continue;
       if (result2 === null || typeof result2 !== "object") throw new TypeError("Object expected");
@@ -24979,19 +24979,19 @@ var require_logger = __commonJS({
         logger: clientLogger
       };
     }
-    var context3 = createLoggerContext({
+    var context2 = createLoggerContext({
       logLevelEnvVarName: "TYPESPEC_RUNTIME_LOG_LEVEL",
       namespace: "typeSpecRuntime"
     });
-    exports2.TypeSpecRuntimeLogger = context3.logger;
+    exports2.TypeSpecRuntimeLogger = context2.logger;
     function setLogLevel(logLevel) {
-      context3.setLogLevel(logLevel);
+      context2.setLogLevel(logLevel);
     }
     function getLogLevel() {
-      return context3.getLogLevel();
+      return context2.getLogLevel();
     }
     function createClientLogger(namespace) {
-      return context3.createClientLogger(namespace);
+      return context2.createClientLogger(namespace);
     }
   }
 });
@@ -29122,19 +29122,19 @@ var require_commonjs2 = __commonJS({
     exports2.getLogLevel = getLogLevel;
     exports2.createClientLogger = createClientLogger;
     var logger_1 = require_internal();
-    var context3 = (0, logger_1.createLoggerContext)({
+    var context2 = (0, logger_1.createLoggerContext)({
       logLevelEnvVarName: "AZURE_LOG_LEVEL",
       namespace: "azure"
     });
-    exports2.AzureLogger = context3.logger;
+    exports2.AzureLogger = context2.logger;
     function setLogLevel(level) {
-      context3.setLogLevel(level);
+      context2.setLogLevel(level);
     }
     function getLogLevel() {
-      return context3.getLogLevel();
+      return context2.getLogLevel();
     }
     function createClientLogger(namespace) {
-      return context3.createClientLogger(namespace);
+      return context2.createClientLogger(namespace);
     }
   }
 });
@@ -30044,14 +30044,14 @@ var require_tracingContext = __commonJS({
       namespace: Symbol.for("@azure/core-tracing namespace")
     };
     function createTracingContext(options = {}) {
-      let context3 = new TracingContextImpl(options.parentContext);
+      let context2 = new TracingContextImpl(options.parentContext);
       if (options.span) {
-        context3 = context3.setValue(exports2.knownContextKeys.span, options.span);
+        context2 = context2.setValue(exports2.knownContextKeys.span, options.span);
       }
       if (options.namespace) {
-        context3 = context3.setValue(exports2.knownContextKeys.namespace, options.namespace);
+        context2 = context2.setValue(exports2.knownContextKeys.namespace, options.namespace);
       }
-      return context3;
+      return context2;
     }
     var TracingContextImpl = class _TracingContextImpl {
       _contextMap;
@@ -30189,8 +30189,8 @@ var require_tracingClient = __commonJS({
           span.end();
         }
       }
-      function withContext(context3, callback, ...callbackArgs) {
-        return (0, instrumenter_js_1.getInstrumenter)().withContext(context3, callback, ...callbackArgs);
+      function withContext(context2, callback, ...callbackArgs) {
+        return (0, instrumenter_js_1.getInstrumenter)().withContext(context2, callback, ...callbackArgs);
       }
       function parseTraceparentHeader(traceparentHeader) {
         return (0, instrumenter_js_1.getInstrumenter)().parseTraceparentHeader(traceparentHeader);
@@ -70658,8 +70658,8 @@ var require_context = __commonJS({
       }
       get repo() {
         if (process.env.GITHUB_REPOSITORY) {
-          const [owner2, repo2] = process.env.GITHUB_REPOSITORY.split("/");
-          return { owner: owner2, repo: repo2 };
+          const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
+          return { owner, repo };
         }
         if (this.payload.repository) {
           return {
@@ -71795,8 +71795,8 @@ var require_dist_node2 = __commonJS({
     function isKeyOperator(operator) {
       return operator === ";" || operator === "&" || operator === "?";
     }
-    function getValues(context3, operator, key, modifier) {
-      var value = context3[key], result2 = [];
+    function getValues(context2, operator, key, modifier) {
+      var value = context2[key], result2 = [];
       if (isDefined(value) && value !== "") {
         if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
           value = value.toString();
@@ -71860,7 +71860,7 @@ var require_dist_node2 = __commonJS({
         expand: expand.bind(null, template)
       };
     }
-    function expand(template, context3) {
+    function expand(template, context2) {
       var operators = ["+", "#", ".", "/", ";", "?", "&"];
       template = template.replace(
         /\{([^\{\}]+)\}|([^\{\}]+)/g,
@@ -71874,7 +71874,7 @@ var require_dist_node2 = __commonJS({
             }
             expression.split(/,/g).forEach(function(variable) {
               var tmp = /([^:\*]*)(?::(\d+)|(\*))?/.exec(variable);
-              values.push(getValues(context3, operator, tmp[1], tmp[2] || tmp[3]));
+              values.push(getValues(context2, operator, tmp[1], tmp[2] || tmp[3]));
             });
             if (operator && operator !== "+") {
               var separator = ",";
@@ -98903,15 +98903,15 @@ var require_cst_scalar = __commonJS({
       }
       return null;
     }
-    function createScalarToken(value, context3) {
-      const { implicitKey = false, indent, inFlow = false, offset = -1, type = "PLAIN" } = context3;
+    function createScalarToken(value, context2) {
+      const { implicitKey = false, indent, inFlow = false, offset = -1, type = "PLAIN" } = context2;
       const source = stringifyString.stringifyString({ type, value }, {
         implicitKey,
         indent: indent > 0 ? " ".repeat(indent) : "",
         inFlow,
         options: { blockQuote: true, lineWidth: -1 }
       });
-      const end = context3.end ?? [
+      const end = context2.end ?? [
         { type: "newline", offset: -1, indent, source: "\n" }
       ];
       switch (source[0]) {
@@ -98935,8 +98935,8 @@ var require_cst_scalar = __commonJS({
           return { type: "scalar", offset, indent, source, end };
       }
     }
-    function setScalarValue(token, value, context3 = {}) {
-      let { afterKey = false, implicitKey = false, inFlow = false, type } = context3;
+    function setScalarValue(token, value, context2 = {}) {
+      let { afterKey = false, implicitKey = false, inFlow = false, type } = context2;
       let indent = "indent" in token ? token.indent : null;
       if (afterKey && typeof indent === "number")
         indent += 2;
@@ -103857,10 +103857,10 @@ var require_tool_cache = __commonJS({
       return versions;
     }
     exports2.findAllVersions = findAllVersions;
-    function getManifestFromRepo(owner2, repo2, auth, branch = "master") {
+    function getManifestFromRepo(owner, repo, auth, branch = "master") {
       return __awaiter2(this, void 0, void 0, function* () {
         let releases = [];
-        const treeUrl = `https://api.github.com/repos/${owner2}/${repo2}/git/trees/${branch}`;
+        const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}`;
         const http = new httpm.HttpClient("tool-cache");
         const headers = {};
         if (auth) {
@@ -108986,14 +108986,14 @@ function composeOpamCachePaths() {
   const paths = [OPAM_ROOT, opamLocalCachePath];
   if (PLATFORM === "windows") {
     const {
-      repo: { repo: repo2 }
+      repo: { repo }
     } = github3.context;
     const opamCygwinLocalCachePath = path4.posix.join(
       "/cygdrive",
       "d",
       "a",
-      repo2,
-      repo2,
+      repo,
+      repo,
       "_opam"
     );
     paths.push(opamCygwinLocalCachePath);
@@ -109101,11 +109101,6 @@ async function saveOpamCache() {
 // src/dune.ts
 var core5 = __toESM(require_core(), 1);
 var import_exec4 = __toESM(require_exec(), 1);
-var github4 = __toESM(require_github(), 1);
-var {
-  repo: { owner, repo },
-  runId: run_id
-} = github4.context;
 async function installDune() {
   await core5.group("Installing dune", async () => {
     await (0, import_exec4.exec)("opam", ["install", "dune"]);

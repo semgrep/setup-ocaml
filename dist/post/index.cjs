@@ -4269,18 +4269,18 @@ var require_webidl = __commonJS({
     webidl.errors.exception = function(message) {
       return new TypeError(`${message.header}: ${message.message}`);
     };
-    webidl.errors.conversionFailed = function(context3) {
-      const plural = context3.types.length === 1 ? "" : " one of";
-      const message = `${context3.argument} could not be converted to${plural}: ${context3.types.join(", ")}.`;
+    webidl.errors.conversionFailed = function(context2) {
+      const plural = context2.types.length === 1 ? "" : " one of";
+      const message = `${context2.argument} could not be converted to${plural}: ${context2.types.join(", ")}.`;
       return webidl.errors.exception({
-        header: context3.prefix,
+        header: context2.prefix,
         message
       });
     };
-    webidl.errors.invalidArgument = function(context3) {
+    webidl.errors.invalidArgument = function(context2) {
       return webidl.errors.exception({
-        header: context3.prefix,
-        message: `"${context3.value}" is an invalid ${context3.type}.`
+        header: context2.prefix,
+        message: `"${context2.value}" is an invalid ${context2.type}.`
       });
     };
     webidl.brandCheck = function(V, I, opts = void 0) {
@@ -9606,15 +9606,15 @@ var require_api_request = __commonJS({
         }
         addSignal(this, signal);
       }
-      onConnect(abort, context3) {
+      onConnect(abort, context2) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context3;
+        this.context = context2;
       }
       onHeaders(statusCode, rawHeaders, resume, statusMessage) {
-        const { callback, opaque, abort, context: context3, responseHeaders, highWaterMark } = this;
+        const { callback, opaque, abort, context: context2, responseHeaders, highWaterMark } = this;
         const headers = responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
         if (statusCode < 200) {
           if (this.onInfo) {
@@ -9641,7 +9641,7 @@ var require_api_request = __commonJS({
               trailers: this.trailers,
               opaque,
               body,
-              context: context3
+              context: context2
             });
           }
         }
@@ -9761,15 +9761,15 @@ var require_api_stream = __commonJS({
         }
         addSignal(this, signal);
       }
-      onConnect(abort, context3) {
+      onConnect(abort, context2) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context3;
+        this.context = context2;
       }
       onHeaders(statusCode, rawHeaders, resume, statusMessage) {
-        const { factory, opaque, context: context3, callback, responseHeaders } = this;
+        const { factory, opaque, context: context2, callback, responseHeaders } = this;
         const headers = responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
         if (statusCode < 200) {
           if (this.onInfo) {
@@ -9797,7 +9797,7 @@ var require_api_stream = __commonJS({
             statusCode,
             headers,
             opaque,
-            context: context3
+            context: context2
           });
           if (!res || typeof res.write !== "function" || typeof res.end !== "function" || typeof res.on !== "function") {
             throw new InvalidReturnValueError("expected Writable");
@@ -9989,17 +9989,17 @@ var require_api_pipeline = __commonJS({
         this.res = null;
         addSignal(this, signal);
       }
-      onConnect(abort, context3) {
+      onConnect(abort, context2) {
         const { ret, res } = this;
         assert(!res, "pipeline cannot be retried");
         if (ret.destroyed) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context3;
+        this.context = context2;
       }
       onHeaders(statusCode, rawHeaders, resume) {
-        const { opaque, handler, context: context3 } = this;
+        const { opaque, handler, context: context2 } = this;
         if (statusCode < 200) {
           if (this.onInfo) {
             const headers = this.responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
@@ -10017,7 +10017,7 @@ var require_api_pipeline = __commonJS({
             headers,
             opaque,
             body: this.res,
-            context: context3
+            context: context2
           });
         } catch (err) {
           this.res.on("error", util.nop);
@@ -10101,7 +10101,7 @@ var require_api_upgrade = __commonJS({
         this.context = null;
         addSignal(this, signal);
       }
-      onConnect(abort, context3) {
+      onConnect(abort, context2) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
@@ -10112,7 +10112,7 @@ var require_api_upgrade = __commonJS({
         throw new SocketError("bad upgrade", null);
       }
       onUpgrade(statusCode, rawHeaders, socket) {
-        const { callback, opaque, context: context3 } = this;
+        const { callback, opaque, context: context2 } = this;
         assert.strictEqual(statusCode, 101);
         removeSignal(this);
         this.callback = null;
@@ -10121,7 +10121,7 @@ var require_api_upgrade = __commonJS({
           headers,
           socket,
           opaque,
-          context: context3
+          context: context2
         });
       }
       onError(err) {
@@ -10189,18 +10189,18 @@ var require_api_connect = __commonJS({
         this.abort = null;
         addSignal(this, signal);
       }
-      onConnect(abort, context3) {
+      onConnect(abort, context2) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context3;
+        this.context = context2;
       }
       onHeaders() {
         throw new SocketError("bad connect", null);
       }
       onUpgrade(statusCode, rawHeaders, socket) {
-        const { callback, opaque, context: context3 } = this;
+        const { callback, opaque, context: context2 } = this;
         removeSignal(this);
         this.callback = null;
         let headers = rawHeaders;
@@ -10212,7 +10212,7 @@ var require_api_connect = __commonJS({
           headers,
           socket,
           opaque,
-          context: context3
+          context: context2
         });
       }
       onError(err) {
@@ -19419,7 +19419,7 @@ var require_exec = __commonJS({
     exports2.getExecOutput = exports2.exec = void 0;
     var string_decoder_1 = require("string_decoder");
     var tr = __importStar2(require_toolrunner());
-    function exec4(commandLine, args, options) {
+    function exec3(commandLine, args, options) {
       return __awaiter2(this, void 0, void 0, function* () {
         const commandArgs = tr.argStringToArray(commandLine);
         if (commandArgs.length === 0) {
@@ -19431,7 +19431,7 @@ var require_exec = __commonJS({
         return runner.exec();
       });
     }
-    exports2.exec = exec4;
+    exports2.exec = exec3;
     function getExecOutput2(commandLine, args, options) {
       var _a, _b;
       return __awaiter2(this, void 0, void 0, function* () {
@@ -19454,7 +19454,7 @@ var require_exec = __commonJS({
           }
         };
         const listeners = Object.assign(Object.assign({}, options === null || options === void 0 ? void 0 : options.listeners), { stdout: stdOutListener, stderr: stdErrListener });
-        const exitCode = yield exec4(commandLine, args, Object.assign(Object.assign({}, options), { listeners }));
+        const exitCode = yield exec3(commandLine, args, Object.assign(Object.assign({}, options), { listeners }));
         stdout += stdoutDecoder.end();
         stderr += stderrDecoder.end();
         return {
@@ -19532,12 +19532,12 @@ var require_platform = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.getDetails = exports2.isLinux = exports2.isMacOS = exports2.isWindows = exports2.arch = exports2.platform = void 0;
     var os_1 = __importDefault2(require("os"));
-    var exec4 = __importStar2(require_exec());
+    var exec3 = __importStar2(require_exec());
     var getWindowsInfo = () => __awaiter2(void 0, void 0, void 0, function* () {
-      const { stdout: version } = yield exec4.getExecOutput('powershell -command "(Get-CimInstance -ClassName Win32_OperatingSystem).Version"', void 0, {
+      const { stdout: version } = yield exec3.getExecOutput('powershell -command "(Get-CimInstance -ClassName Win32_OperatingSystem).Version"', void 0, {
         silent: true
       });
-      const { stdout: name } = yield exec4.getExecOutput('powershell -command "(Get-CimInstance -ClassName Win32_OperatingSystem).Caption"', void 0, {
+      const { stdout: name } = yield exec3.getExecOutput('powershell -command "(Get-CimInstance -ClassName Win32_OperatingSystem).Caption"', void 0, {
         silent: true
       });
       return {
@@ -19547,7 +19547,7 @@ var require_platform = __commonJS({
     });
     var getMacOsInfo = () => __awaiter2(void 0, void 0, void 0, function* () {
       var _a, _b, _c, _d;
-      const { stdout } = yield exec4.getExecOutput("sw_vers", void 0, {
+      const { stdout } = yield exec3.getExecOutput("sw_vers", void 0, {
         silent: true
       });
       const version = (_b = (_a = stdout.match(/ProductVersion:\s*(.+)/)) === null || _a === void 0 ? void 0 : _a[1]) !== null && _b !== void 0 ? _b : "";
@@ -19558,7 +19558,7 @@ var require_platform = __commonJS({
       };
     });
     var getLinuxInfo = () => __awaiter2(void 0, void 0, void 0, function* () {
-      const { stdout } = yield exec4.getExecOutput("lsb_release", ["-i", "-r", "-s"], {
+      const { stdout } = yield exec3.getExecOutput("lsb_release", ["-i", "-r", "-s"], {
         silent: true
       });
       const [name, version] = stdout.trim().split("\n");
@@ -19763,7 +19763,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       (0, command_1.issue)("endgroup");
     }
     exports2.endGroup = endGroup;
-    function group4(name, fn) {
+    function group3(name, fn) {
       return __awaiter2(this, void 0, void 0, function* () {
         startGroup(name);
         let result2;
@@ -19775,7 +19775,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
         return result2;
       });
     }
-    exports2.group = group4;
+    exports2.group = group3;
     function saveState(name, value) {
       const filePath = process.env["GITHUB_STATE"] || "";
       if (filePath) {
@@ -19845,7 +19845,7 @@ var require_internal_glob_options_helper = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.getOptions = void 0;
-    var core6 = __importStar2(require_core());
+    var core5 = __importStar2(require_core());
     function getOptions(copy) {
       const result2 = {
         followSymbolicLinks: true,
@@ -19855,15 +19855,15 @@ var require_internal_glob_options_helper = __commonJS({
       if (copy) {
         if (typeof copy.followSymbolicLinks === "boolean") {
           result2.followSymbolicLinks = copy.followSymbolicLinks;
-          core6.debug(`followSymbolicLinks '${result2.followSymbolicLinks}'`);
+          core5.debug(`followSymbolicLinks '${result2.followSymbolicLinks}'`);
         }
         if (typeof copy.implicitDescendants === "boolean") {
           result2.implicitDescendants = copy.implicitDescendants;
-          core6.debug(`implicitDescendants '${result2.implicitDescendants}'`);
+          core5.debug(`implicitDescendants '${result2.implicitDescendants}'`);
         }
         if (typeof copy.omitBrokenSymbolicLinks === "boolean") {
           result2.omitBrokenSymbolicLinks = copy.omitBrokenSymbolicLinks;
-          core6.debug(`omitBrokenSymbolicLinks '${result2.omitBrokenSymbolicLinks}'`);
+          core5.debug(`omitBrokenSymbolicLinks '${result2.omitBrokenSymbolicLinks}'`);
         }
       }
       return result2;
@@ -21320,7 +21320,7 @@ var require_internal_globber = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.DefaultGlobber = void 0;
-    var core6 = __importStar2(require_core());
+    var core5 = __importStar2(require_core());
     var fs2 = __importStar2(require("fs"));
     var globOptionsHelper = __importStar2(require_internal_glob_options_helper());
     var path4 = __importStar2(require("path"));
@@ -21371,7 +21371,7 @@ var require_internal_globber = __commonJS({
           }
           const stack = [];
           for (const searchPath of patternHelper.getSearchPaths(patterns)) {
-            core6.debug(`Search path '${searchPath}'`);
+            core5.debug(`Search path '${searchPath}'`);
             try {
               yield __await2(fs2.promises.lstat(searchPath));
             } catch (err) {
@@ -21443,7 +21443,7 @@ var require_internal_globber = __commonJS({
             } catch (err) {
               if (err.code === "ENOENT") {
                 if (options.omitBrokenSymbolicLinks) {
-                  core6.debug(`Broken symlink '${item.path}'`);
+                  core5.debug(`Broken symlink '${item.path}'`);
                   return void 0;
                 }
                 throw new Error(`No information found for the path '${item.path}'. This may indicate a broken symbolic link.`);
@@ -21459,7 +21459,7 @@ var require_internal_globber = __commonJS({
               traversalChain.pop();
             }
             if (traversalChain.some((x) => x === realPath)) {
-              core6.debug(`Symlink cycle detected for path '${item.path}' and realpath '${realPath}'`);
+              core5.debug(`Symlink cycle detected for path '${item.path}' and realpath '${realPath}'`);
               return void 0;
             }
             traversalChain.push(realPath);
@@ -23204,8 +23204,8 @@ var require_cacheUtils = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.getRuntimeToken = exports2.getCacheVersion = exports2.assertDefined = exports2.getGnuTarPathOnWindows = exports2.getCacheFileName = exports2.getCompressionMethod = exports2.unlinkFile = exports2.resolvePaths = exports2.getArchiveFileSizeInBytes = exports2.createTempDirectory = void 0;
-    var core6 = __importStar2(require_core());
-    var exec4 = __importStar2(require_exec());
+    var core5 = __importStar2(require_core());
+    var exec3 = __importStar2(require_exec());
     var glob = __importStar2(require_glob());
     var io = __importStar2(require_io2());
     var crypto3 = __importStar2(require("crypto"));
@@ -23257,7 +23257,7 @@ var require_cacheUtils = __commonJS({
             _e = false;
             const file = _c;
             const relativeFile = path4.relative(workspace, file).replace(new RegExp(`\\${path4.sep}`, "g"), "/");
-            core6.debug(`Matched: ${relativeFile}`);
+            core5.debug(`Matched: ${relativeFile}`);
             if (relativeFile === "") {
               paths.push(".");
             } else {
@@ -23287,9 +23287,9 @@ var require_cacheUtils = __commonJS({
       return __awaiter2(this, void 0, void 0, function* () {
         let versionOutput = "";
         additionalArgs.push("--version");
-        core6.debug(`Checking ${app} ${additionalArgs.join(" ")}`);
+        core5.debug(`Checking ${app} ${additionalArgs.join(" ")}`);
         try {
-          yield exec4.exec(`${app}`, additionalArgs, {
+          yield exec3.exec(`${app}`, additionalArgs, {
             ignoreReturnCode: true,
             silent: true,
             listeners: {
@@ -23298,10 +23298,10 @@ var require_cacheUtils = __commonJS({
             }
           });
         } catch (err) {
-          core6.debug(err.message);
+          core5.debug(err.message);
         }
         versionOutput = versionOutput.trim();
-        core6.debug(versionOutput);
+        core5.debug(versionOutput);
         return versionOutput;
       });
     }
@@ -23309,7 +23309,7 @@ var require_cacheUtils = __commonJS({
       return __awaiter2(this, void 0, void 0, function* () {
         const versionOutput = yield getVersion("zstd", ["--quiet"]);
         const version = semver3.clean(versionOutput);
-        core6.debug(`zstd version: ${version}`);
+        core5.debug(`zstd version: ${version}`);
         if (versionOutput === "") {
           return constants_1.CompressionMethod.Gzip;
         } else {
@@ -24245,14 +24245,14 @@ function __esDecorate(ctor, descriptorIn, decorators, contextIn, initializers, e
   var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
   var _, done = false;
   for (var i = decorators.length - 1; i >= 0; i--) {
-    var context3 = {};
-    for (var p in contextIn) context3[p] = p === "access" ? {} : contextIn[p];
-    for (var p in contextIn.access) context3.access[p] = contextIn.access[p];
-    context3.addInitializer = function(f) {
+    var context2 = {};
+    for (var p in contextIn) context2[p] = p === "access" ? {} : contextIn[p];
+    for (var p in contextIn.access) context2.access[p] = contextIn.access[p];
+    context2.addInitializer = function(f) {
       if (done) throw new TypeError("Cannot add initializers after decoration has completed");
       extraInitializers.push(accept(f || null));
     };
-    var result2 = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context3);
+    var result2 = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context2);
     if (kind === "accessor") {
       if (result2 === void 0) continue;
       if (result2 === null || typeof result2 !== "object") throw new TypeError("Object expected");
@@ -24979,19 +24979,19 @@ var require_logger = __commonJS({
         logger: clientLogger
       };
     }
-    var context3 = createLoggerContext({
+    var context2 = createLoggerContext({
       logLevelEnvVarName: "TYPESPEC_RUNTIME_LOG_LEVEL",
       namespace: "typeSpecRuntime"
     });
-    exports2.TypeSpecRuntimeLogger = context3.logger;
+    exports2.TypeSpecRuntimeLogger = context2.logger;
     function setLogLevel(logLevel) {
-      context3.setLogLevel(logLevel);
+      context2.setLogLevel(logLevel);
     }
     function getLogLevel() {
-      return context3.getLogLevel();
+      return context2.getLogLevel();
     }
     function createClientLogger(namespace) {
-      return context3.createClientLogger(namespace);
+      return context2.createClientLogger(namespace);
     }
   }
 });
@@ -29122,19 +29122,19 @@ var require_commonjs2 = __commonJS({
     exports2.getLogLevel = getLogLevel;
     exports2.createClientLogger = createClientLogger;
     var logger_1 = require_internal();
-    var context3 = (0, logger_1.createLoggerContext)({
+    var context2 = (0, logger_1.createLoggerContext)({
       logLevelEnvVarName: "AZURE_LOG_LEVEL",
       namespace: "azure"
     });
-    exports2.AzureLogger = context3.logger;
+    exports2.AzureLogger = context2.logger;
     function setLogLevel(level) {
-      context3.setLogLevel(level);
+      context2.setLogLevel(level);
     }
     function getLogLevel() {
-      return context3.getLogLevel();
+      return context2.getLogLevel();
     }
     function createClientLogger(namespace) {
-      return context3.createClientLogger(namespace);
+      return context2.createClientLogger(namespace);
     }
   }
 });
@@ -30044,14 +30044,14 @@ var require_tracingContext = __commonJS({
       namespace: Symbol.for("@azure/core-tracing namespace")
     };
     function createTracingContext(options = {}) {
-      let context3 = new TracingContextImpl(options.parentContext);
+      let context2 = new TracingContextImpl(options.parentContext);
       if (options.span) {
-        context3 = context3.setValue(exports2.knownContextKeys.span, options.span);
+        context2 = context2.setValue(exports2.knownContextKeys.span, options.span);
       }
       if (options.namespace) {
-        context3 = context3.setValue(exports2.knownContextKeys.namespace, options.namespace);
+        context2 = context2.setValue(exports2.knownContextKeys.namespace, options.namespace);
       }
-      return context3;
+      return context2;
     }
     var TracingContextImpl = class _TracingContextImpl {
       _contextMap;
@@ -30189,8 +30189,8 @@ var require_tracingClient = __commonJS({
           span.end();
         }
       }
-      function withContext(context3, callback, ...callbackArgs) {
-        return (0, instrumenter_js_1.getInstrumenter)().withContext(context3, callback, ...callbackArgs);
+      function withContext(context2, callback, ...callbackArgs) {
+        return (0, instrumenter_js_1.getInstrumenter)().withContext(context2, callback, ...callbackArgs);
       }
       function parseTraceparentHeader(traceparentHeader) {
         return (0, instrumenter_js_1.getInstrumenter)().parseTraceparentHeader(traceparentHeader);
@@ -63533,7 +63533,7 @@ var require_uploadUtils = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.uploadCacheArchiveSDK = exports2.UploadProgress = void 0;
-    var core6 = __importStar2(require_core());
+    var core5 = __importStar2(require_core());
     var storage_blob_1 = require_commonjs13();
     var errors_1 = require_errors2();
     var UploadProgress = class {
@@ -63575,7 +63575,7 @@ var require_uploadUtils = __commonJS({
         const percentage = (100 * (transferredBytes / this.contentLength)).toFixed(1);
         const elapsedTime = Date.now() - this.startTime;
         const uploadSpeed = (transferredBytes / (1024 * 1024) / (elapsedTime / 1e3)).toFixed(1);
-        core6.info(`Sent ${transferredBytes} of ${this.contentLength} (${percentage}%), ${uploadSpeed} MBs/sec`);
+        core5.info(`Sent ${transferredBytes} of ${this.contentLength} (${percentage}%), ${uploadSpeed} MBs/sec`);
         if (this.isDone()) {
           this.displayedComplete = true;
         }
@@ -63630,14 +63630,14 @@ var require_uploadUtils = __commonJS({
         };
         try {
           uploadProgress.startDisplayTimer();
-          core6.debug(`BlobClient: ${blobClient.name}:${blobClient.accountName}:${blobClient.containerName}`);
+          core5.debug(`BlobClient: ${blobClient.name}:${blobClient.accountName}:${blobClient.containerName}`);
           const response = yield blockBlobClient.uploadFile(archivePath, uploadOptions);
           if (response._response.status >= 400) {
             throw new errors_1.InvalidResponseError(`uploadCacheArchiveSDK: upload failed with status code ${response._response.status}`);
           }
           return response;
         } catch (error2) {
-          core6.warning(`uploadCacheArchiveSDK: internal error uploading cache archive: ${error2.message}`);
+          core5.warning(`uploadCacheArchiveSDK: internal error uploading cache archive: ${error2.message}`);
           throw error2;
         } finally {
           uploadProgress.stopDisplayTimer();
@@ -63708,7 +63708,7 @@ var require_requestUtils = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.retryHttpClientResponse = exports2.retryTypedResponse = exports2.retry = exports2.isRetryableStatusCode = exports2.isServerErrorStatusCode = exports2.isSuccessStatusCode = void 0;
-    var core6 = __importStar2(require_core());
+    var core5 = __importStar2(require_core());
     var http_client_1 = require_lib2();
     var constants_1 = require_constants6();
     function isSuccessStatusCode(statusCode) {
@@ -63769,9 +63769,9 @@ var require_requestUtils = __commonJS({
             isRetryable = isRetryableStatusCode(statusCode);
             errorMessage = `Cache service responded with ${statusCode}`;
           }
-          core6.debug(`${name} - Attempt ${attempt} of ${maxAttempts} failed with error: ${errorMessage}`);
+          core5.debug(`${name} - Attempt ${attempt} of ${maxAttempts} failed with error: ${errorMessage}`);
           if (!isRetryable) {
-            core6.debug(`${name} - Error is not retryable`);
+            core5.debug(`${name} - Error is not retryable`);
             break;
           }
           yield sleep(delay);
@@ -64020,7 +64020,7 @@ var require_downloadUtils = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.downloadCacheStorageSDK = exports2.downloadCacheHttpClientConcurrent = exports2.downloadCacheHttpClient = exports2.DownloadProgress = void 0;
-    var core6 = __importStar2(require_core());
+    var core5 = __importStar2(require_core());
     var http_client_1 = require_lib2();
     var storage_blob_1 = require_commonjs13();
     var buffer = __importStar2(require("buffer"));
@@ -64058,7 +64058,7 @@ var require_downloadUtils = __commonJS({
         this.segmentIndex = this.segmentIndex + 1;
         this.segmentSize = segmentSize;
         this.receivedBytes = 0;
-        core6.debug(`Downloading segment at offset ${this.segmentOffset} with length ${this.segmentSize}...`);
+        core5.debug(`Downloading segment at offset ${this.segmentOffset} with length ${this.segmentSize}...`);
       }
       /**
        * Sets the number of bytes received for the current segment.
@@ -64092,7 +64092,7 @@ var require_downloadUtils = __commonJS({
         const percentage = (100 * (transferredBytes / this.contentLength)).toFixed(1);
         const elapsedTime = Date.now() - this.startTime;
         const downloadSpeed = (transferredBytes / (1024 * 1024) / (elapsedTime / 1e3)).toFixed(1);
-        core6.info(`Received ${transferredBytes} of ${this.contentLength} (${percentage}%), ${downloadSpeed} MBs/sec`);
+        core5.info(`Received ${transferredBytes} of ${this.contentLength} (${percentage}%), ${downloadSpeed} MBs/sec`);
         if (this.isDone()) {
           this.displayedComplete = true;
         }
@@ -64142,7 +64142,7 @@ var require_downloadUtils = __commonJS({
         }));
         downloadResponse.message.socket.setTimeout(constants_1.SocketTimeout, () => {
           downloadResponse.message.destroy();
-          core6.debug(`Aborting download, socket timed out after ${constants_1.SocketTimeout} ms`);
+          core5.debug(`Aborting download, socket timed out after ${constants_1.SocketTimeout} ms`);
         });
         yield pipeResponseToStream(downloadResponse, writeStream);
         const contentLengthHeader = downloadResponse.message.headers["content-length"];
@@ -64153,7 +64153,7 @@ var require_downloadUtils = __commonJS({
             throw new Error(`Incomplete download. Expected file size: ${expectedLength}, actual file size: ${actualLength}`);
           }
         } else {
-          core6.debug("Unable to validate download, no Content-Length header");
+          core5.debug("Unable to validate download, no Content-Length header");
         }
       });
     }
@@ -64273,7 +64273,7 @@ var require_downloadUtils = __commonJS({
         const properties = yield client.getProperties();
         const contentLength = (_a = properties.contentLength) !== null && _a !== void 0 ? _a : -1;
         if (contentLength < 0) {
-          core6.debug("Unable to determine content length, downloading file with http-client...");
+          core5.debug("Unable to determine content length, downloading file with http-client...");
           yield downloadCacheHttpClient(archiveLocation, archivePath);
         } else {
           const maxSegmentSize = Math.min(134217728, buffer.constants.MAX_LENGTH);
@@ -64353,7 +64353,7 @@ var require_options = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.getDownloadOptions = exports2.getUploadOptions = void 0;
-    var core6 = __importStar2(require_core());
+    var core5 = __importStar2(require_core());
     function getUploadOptions(copy) {
       const result2 = {
         useAzureSdk: false,
@@ -64373,9 +64373,9 @@ var require_options = __commonJS({
       }
       result2.uploadConcurrency = !isNaN(Number(process.env["CACHE_UPLOAD_CONCURRENCY"])) ? Math.min(32, Number(process.env["CACHE_UPLOAD_CONCURRENCY"])) : result2.uploadConcurrency;
       result2.uploadChunkSize = !isNaN(Number(process.env["CACHE_UPLOAD_CHUNK_SIZE"])) ? Math.min(128 * 1024 * 1024, Number(process.env["CACHE_UPLOAD_CHUNK_SIZE"]) * 1024 * 1024) : result2.uploadChunkSize;
-      core6.debug(`Use Azure SDK: ${result2.useAzureSdk}`);
-      core6.debug(`Upload concurrency: ${result2.uploadConcurrency}`);
-      core6.debug(`Upload chunk size: ${result2.uploadChunkSize}`);
+      core5.debug(`Use Azure SDK: ${result2.useAzureSdk}`);
+      core5.debug(`Upload concurrency: ${result2.uploadConcurrency}`);
+      core5.debug(`Upload chunk size: ${result2.uploadChunkSize}`);
       return result2;
     }
     exports2.getUploadOptions = getUploadOptions;
@@ -64412,12 +64412,12 @@ var require_options = __commonJS({
       if (segmentDownloadTimeoutMins && !isNaN(Number(segmentDownloadTimeoutMins)) && isFinite(Number(segmentDownloadTimeoutMins))) {
         result2.segmentTimeoutInMs = Number(segmentDownloadTimeoutMins) * 60 * 1e3;
       }
-      core6.debug(`Use Azure SDK: ${result2.useAzureSdk}`);
-      core6.debug(`Download concurrency: ${result2.downloadConcurrency}`);
-      core6.debug(`Request timeout (ms): ${result2.timeoutInMs}`);
-      core6.debug(`Cache segment download timeout mins env var: ${process.env["SEGMENT_DOWNLOAD_TIMEOUT_MINS"]}`);
-      core6.debug(`Segment download timeout (ms): ${result2.segmentTimeoutInMs}`);
-      core6.debug(`Lookup only: ${result2.lookupOnly}`);
+      core5.debug(`Use Azure SDK: ${result2.useAzureSdk}`);
+      core5.debug(`Download concurrency: ${result2.downloadConcurrency}`);
+      core5.debug(`Request timeout (ms): ${result2.timeoutInMs}`);
+      core5.debug(`Cache segment download timeout mins env var: ${process.env["SEGMENT_DOWNLOAD_TIMEOUT_MINS"]}`);
+      core5.debug(`Segment download timeout (ms): ${result2.segmentTimeoutInMs}`);
+      core5.debug(`Lookup only: ${result2.lookupOnly}`);
       return result2;
     }
     exports2.getDownloadOptions = getDownloadOptions;
@@ -64597,7 +64597,7 @@ var require_cacheHttpClient = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.saveCache = exports2.reserveCache = exports2.downloadCache = exports2.getCacheEntry = void 0;
-    var core6 = __importStar2(require_core());
+    var core5 = __importStar2(require_core());
     var http_client_1 = require_lib2();
     var auth_1 = require_auth2();
     var fs2 = __importStar2(require("fs"));
@@ -64615,7 +64615,7 @@ var require_cacheHttpClient = __commonJS({
         throw new Error("Cache Service Url not found, unable to restore cache.");
       }
       const url = `${baseUrl}_apis/artifactcache/${resource}`;
-      core6.debug(`Resource Url: ${url}`);
+      core5.debug(`Resource Url: ${url}`);
       return url;
     }
     function createAcceptHeader(type, apiVersion) {
@@ -64643,7 +64643,7 @@ var require_cacheHttpClient = __commonJS({
           return httpClient.getJson(getCacheApiUrl(resource));
         }));
         if (response.statusCode === 204) {
-          if (core6.isDebug()) {
+          if (core5.isDebug()) {
             yield printCachesListForDiagnostics(keys[0], httpClient, version);
           }
           return null;
@@ -64656,9 +64656,9 @@ var require_cacheHttpClient = __commonJS({
         if (!cacheDownloadUrl) {
           throw new Error("Cache not found.");
         }
-        core6.setSecret(cacheDownloadUrl);
-        core6.debug(`Cache Result:`);
-        core6.debug(JSON.stringify(cacheResult));
+        core5.setSecret(cacheDownloadUrl);
+        core5.debug(`Cache Result:`);
+        core5.debug(JSON.stringify(cacheResult));
         return cacheResult;
       });
     }
@@ -64673,10 +64673,10 @@ var require_cacheHttpClient = __commonJS({
           const cacheListResult = response.result;
           const totalCount = cacheListResult === null || cacheListResult === void 0 ? void 0 : cacheListResult.totalCount;
           if (totalCount && totalCount > 0) {
-            core6.debug(`No matching cache found for cache key '${key}', version '${version} and scope ${process.env["GITHUB_REF"]}. There exist one or more cache(s) with similar key but they have different version or scope. See more info on cache matching here: https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#matching-a-cache-key 
+            core5.debug(`No matching cache found for cache key '${key}', version '${version} and scope ${process.env["GITHUB_REF"]}. There exist one or more cache(s) with similar key but they have different version or scope. See more info on cache matching here: https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#matching-a-cache-key 
 Other caches with similar key:`);
             for (const cacheEntry of (cacheListResult === null || cacheListResult === void 0 ? void 0 : cacheListResult.artifactCaches) || []) {
-              core6.debug(`Cache Key: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.cacheKey}, Cache Version: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.cacheVersion}, Cache Scope: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.scope}, Cache Created: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.creationTime}`);
+              core5.debug(`Cache Key: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.cacheKey}, Cache Version: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.cacheVersion}, Cache Scope: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.scope}, Cache Created: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.creationTime}`);
             }
           }
         }
@@ -64721,7 +64721,7 @@ Other caches with similar key:`);
     }
     function uploadChunk(httpClient, resourceUrl, openStream, start, end) {
       return __awaiter2(this, void 0, void 0, function* () {
-        core6.debug(`Uploading chunk of size ${end - start + 1} bytes at offset ${start} with content range: ${getContentRange(start, end)}`);
+        core5.debug(`Uploading chunk of size ${end - start + 1} bytes at offset ${start} with content range: ${getContentRange(start, end)}`);
         const additionalHeaders = {
           "Content-Type": "application/octet-stream",
           "Content-Range": getContentRange(start, end)
@@ -64743,7 +64743,7 @@ Other caches with similar key:`);
         const concurrency = utils.assertDefined("uploadConcurrency", uploadOptions.uploadConcurrency);
         const maxChunkSize = utils.assertDefined("uploadChunkSize", uploadOptions.uploadChunkSize);
         const parallelUploads = [...new Array(concurrency).keys()];
-        core6.debug("Awaiting all uploads");
+        core5.debug("Awaiting all uploads");
         let offset = 0;
         try {
           yield Promise.all(parallelUploads.map(() => __awaiter2(this, void 0, void 0, function* () {
@@ -64786,16 +64786,16 @@ Other caches with similar key:`);
           yield (0, uploadUtils_1.uploadCacheArchiveSDK)(signedUploadURL, archivePath, options);
         } else {
           const httpClient = createHttpClient();
-          core6.debug("Upload cache");
+          core5.debug("Upload cache");
           yield uploadFile(httpClient, cacheId, archivePath, options);
-          core6.debug("Commiting cache");
+          core5.debug("Commiting cache");
           const cacheSize = utils.getArchiveFileSizeInBytes(archivePath);
-          core6.info(`Cache Size: ~${Math.round(cacheSize / (1024 * 1024))} MB (${cacheSize} B)`);
+          core5.info(`Cache Size: ~${Math.round(cacheSize / (1024 * 1024))} MB (${cacheSize} B)`);
           const commitCacheResponse = yield commitCache(httpClient, cacheId, cacheSize);
           if (!(0, requestUtils_1.isSuccessStatusCode)(commitCacheResponse.statusCode)) {
             throw new Error(`Cache service responded with ${commitCacheResponse.statusCode} during commit cache.`);
           }
-          core6.info("Cache saved successfully");
+          core5.info("Cache saved successfully");
         }
       });
     }
@@ -66152,15 +66152,15 @@ var require_reflection_type_check = __commonJS({
           return true;
         }
         for (const name of data.oneofs) {
-          const group4 = message[name];
-          if (!oneof_1.isOneofGroup(group4))
+          const group3 = message[name];
+          if (!oneof_1.isOneofGroup(group3))
             return false;
-          if (group4.oneofKind === void 0)
+          if (group3.oneofKind === void 0)
             continue;
-          const field = this.fields.find((f) => f.localName === group4.oneofKind);
+          const field = this.fields.find((f) => f.localName === group3.oneofKind);
           if (!field)
             return false;
-          if (!this.field(group4[group4.oneofKind], field, allowExcessProperties, depth))
+          if (!this.field(group3[group3.oneofKind], field, allowExcessProperties, depth))
             return false;
         }
         for (const field of this.fields) {
@@ -66641,11 +66641,11 @@ var require_reflection_json_writer = __commonJS({
               json[options.useProtoFieldName ? field.name : field.jsonName] = jsonValue2;
             continue;
           }
-          const group4 = source[field.oneof];
-          if (group4.oneofKind !== field.localName)
+          const group3 = source[field.oneof];
+          if (group3.oneofKind !== field.localName)
             continue;
           const opt = field.kind == "scalar" || field.kind == "enum" ? Object.assign(Object.assign({}, options), { emitDefaultValues: true }) : options;
-          let jsonValue = this.field(field, group4[field.localName], opt);
+          let jsonValue = this.field(field, group3[field.localName], opt);
           assert_1.assert(jsonValue !== void 0);
           json[options.useProtoFieldName ? field.name : field.jsonName] = jsonValue;
         }
@@ -67071,10 +67071,10 @@ var require_reflection_binary_writer = __commonJS({
         for (const field of this.fields) {
           let value, emitDefault, repeated = field.repeat, localName = field.localName;
           if (field.oneof) {
-            const group4 = message[field.oneof];
-            if (group4.oneofKind !== localName)
+            const group3 = message[field.oneof];
+            if (group3.oneofKind !== localName)
               continue;
-            value = group4[localName];
+            value = group3[localName];
             emitDefault = true;
           } else {
             value = message[localName];
@@ -67310,13 +67310,13 @@ var require_reflection_merge_partial = __commonJS({
       for (let field of info3.fields) {
         let name = field.localName;
         if (field.oneof) {
-          const group4 = input[field.oneof];
-          if ((group4 === null || group4 === void 0 ? void 0 : group4.oneofKind) == void 0) {
+          const group3 = input[field.oneof];
+          if ((group3 === null || group3 === void 0 ? void 0 : group3.oneofKind) == void 0) {
             continue;
           }
-          fieldValue = group4[name];
+          fieldValue = group3[name];
           output = target[field.oneof];
-          output.oneofKind = group4.oneofKind;
+          output.oneofKind = group3.oneofKind;
           if (fieldValue == void 0) {
             delete output[name];
             continue;
@@ -70247,7 +70247,7 @@ var require_cache4 = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.saveCache = exports2.restoreCache = exports2.isFeatureAvailable = exports2.FinalizeCacheError = exports2.ReserveCacheError = exports2.ValidationError = void 0;
-    var core6 = __importStar2(require_core());
+    var core5 = __importStar2(require_core());
     var path4 = __importStar2(require("path"));
     var utils = __importStar2(require_cacheUtils());
     var cacheHttpClient = __importStar2(require_cacheHttpClient());
@@ -70307,7 +70307,7 @@ var require_cache4 = __commonJS({
     function restoreCache3(paths, primaryKey, restoreKeys, options, enableCrossOsArchive = false) {
       return __awaiter2(this, void 0, void 0, function* () {
         const cacheServiceVersion = (0, config_1.getCacheServiceVersion)();
-        core6.debug(`Cache service version: ${cacheServiceVersion}`);
+        core5.debug(`Cache service version: ${cacheServiceVersion}`);
         checkPaths(paths);
         switch (cacheServiceVersion) {
           case "v2":
@@ -70323,8 +70323,8 @@ var require_cache4 = __commonJS({
       return __awaiter2(this, void 0, void 0, function* () {
         restoreKeys = restoreKeys || [];
         const keys = [primaryKey, ...restoreKeys];
-        core6.debug("Resolved Keys:");
-        core6.debug(JSON.stringify(keys));
+        core5.debug("Resolved Keys:");
+        core5.debug(JSON.stringify(keys));
         if (keys.length > 10) {
           throw new ValidationError(`Key Validation Error: Keys are limited to a maximum of 10.`);
         }
@@ -70342,19 +70342,19 @@ var require_cache4 = __commonJS({
             return void 0;
           }
           if (options === null || options === void 0 ? void 0 : options.lookupOnly) {
-            core6.info("Lookup only - skipping download");
+            core5.info("Lookup only - skipping download");
             return cacheEntry.cacheKey;
           }
           archivePath = path4.join(yield utils.createTempDirectory(), utils.getCacheFileName(compressionMethod));
-          core6.debug(`Archive Path: ${archivePath}`);
+          core5.debug(`Archive Path: ${archivePath}`);
           yield cacheHttpClient.downloadCache(cacheEntry.archiveLocation, archivePath, options);
-          if (core6.isDebug()) {
+          if (core5.isDebug()) {
             yield (0, tar_1.listTar)(archivePath, compressionMethod);
           }
           const archiveFileSize = utils.getArchiveFileSizeInBytes(archivePath);
-          core6.info(`Cache Size: ~${Math.round(archiveFileSize / (1024 * 1024))} MB (${archiveFileSize} B)`);
+          core5.info(`Cache Size: ~${Math.round(archiveFileSize / (1024 * 1024))} MB (${archiveFileSize} B)`);
           yield (0, tar_1.extractTar)(archivePath, compressionMethod);
-          core6.info("Cache restored successfully");
+          core5.info("Cache restored successfully");
           return cacheEntry.cacheKey;
         } catch (error2) {
           const typedError = error2;
@@ -70362,16 +70362,16 @@ var require_cache4 = __commonJS({
             throw error2;
           } else {
             if (typedError instanceof http_client_1.HttpClientError && typeof typedError.statusCode === "number" && typedError.statusCode >= 500) {
-              core6.error(`Failed to restore: ${error2.message}`);
+              core5.error(`Failed to restore: ${error2.message}`);
             } else {
-              core6.warning(`Failed to restore: ${error2.message}`);
+              core5.warning(`Failed to restore: ${error2.message}`);
             }
           }
         } finally {
           try {
             yield utils.unlinkFile(archivePath);
           } catch (error2) {
-            core6.debug(`Failed to delete archive: ${error2}`);
+            core5.debug(`Failed to delete archive: ${error2}`);
           }
         }
         return void 0;
@@ -70382,8 +70382,8 @@ var require_cache4 = __commonJS({
         options = Object.assign(Object.assign({}, options), { useAzureSdk: true });
         restoreKeys = restoreKeys || [];
         const keys = [primaryKey, ...restoreKeys];
-        core6.debug("Resolved Keys:");
-        core6.debug(JSON.stringify(keys));
+        core5.debug("Resolved Keys:");
+        core5.debug(JSON.stringify(keys));
         if (keys.length > 10) {
           throw new ValidationError(`Key Validation Error: Keys are limited to a maximum of 10.`);
         }
@@ -70401,30 +70401,30 @@ var require_cache4 = __commonJS({
           };
           const response = yield twirpClient.GetCacheEntryDownloadURL(request);
           if (!response.ok) {
-            core6.debug(`Cache not found for version ${request.version} of keys: ${keys.join(", ")}`);
+            core5.debug(`Cache not found for version ${request.version} of keys: ${keys.join(", ")}`);
             return void 0;
           }
           const isRestoreKeyMatch = request.key !== response.matchedKey;
           if (isRestoreKeyMatch) {
-            core6.info(`Cache hit for restore-key: ${response.matchedKey}`);
+            core5.info(`Cache hit for restore-key: ${response.matchedKey}`);
           } else {
-            core6.info(`Cache hit for: ${response.matchedKey}`);
+            core5.info(`Cache hit for: ${response.matchedKey}`);
           }
           if (options === null || options === void 0 ? void 0 : options.lookupOnly) {
-            core6.info("Lookup only - skipping download");
+            core5.info("Lookup only - skipping download");
             return response.matchedKey;
           }
           archivePath = path4.join(yield utils.createTempDirectory(), utils.getCacheFileName(compressionMethod));
-          core6.debug(`Archive path: ${archivePath}`);
-          core6.debug(`Starting download of archive to: ${archivePath}`);
+          core5.debug(`Archive path: ${archivePath}`);
+          core5.debug(`Starting download of archive to: ${archivePath}`);
           yield cacheHttpClient.downloadCache(response.signedDownloadUrl, archivePath, options);
           const archiveFileSize = utils.getArchiveFileSizeInBytes(archivePath);
-          core6.info(`Cache Size: ~${Math.round(archiveFileSize / (1024 * 1024))} MB (${archiveFileSize} B)`);
-          if (core6.isDebug()) {
+          core5.info(`Cache Size: ~${Math.round(archiveFileSize / (1024 * 1024))} MB (${archiveFileSize} B)`);
+          if (core5.isDebug()) {
             yield (0, tar_1.listTar)(archivePath, compressionMethod);
           }
           yield (0, tar_1.extractTar)(archivePath, compressionMethod);
-          core6.info("Cache restored successfully");
+          core5.info("Cache restored successfully");
           return response.matchedKey;
         } catch (error2) {
           const typedError = error2;
@@ -70432,9 +70432,9 @@ var require_cache4 = __commonJS({
             throw error2;
           } else {
             if (typedError instanceof http_client_1.HttpClientError && typeof typedError.statusCode === "number" && typedError.statusCode >= 500) {
-              core6.error(`Failed to restore: ${error2.message}`);
+              core5.error(`Failed to restore: ${error2.message}`);
             } else {
-              core6.warning(`Failed to restore: ${error2.message}`);
+              core5.warning(`Failed to restore: ${error2.message}`);
             }
           }
         } finally {
@@ -70443,7 +70443,7 @@ var require_cache4 = __commonJS({
               yield utils.unlinkFile(archivePath);
             }
           } catch (error2) {
-            core6.debug(`Failed to delete archive: ${error2}`);
+            core5.debug(`Failed to delete archive: ${error2}`);
           }
         }
         return void 0;
@@ -70452,7 +70452,7 @@ var require_cache4 = __commonJS({
     function saveCache3(paths, key, options, enableCrossOsArchive = false) {
       return __awaiter2(this, void 0, void 0, function* () {
         const cacheServiceVersion = (0, config_1.getCacheServiceVersion)();
-        core6.debug(`Cache service version: ${cacheServiceVersion}`);
+        core5.debug(`Cache service version: ${cacheServiceVersion}`);
         checkPaths(paths);
         checkKey(key);
         switch (cacheServiceVersion) {
@@ -70471,26 +70471,26 @@ var require_cache4 = __commonJS({
         const compressionMethod = yield utils.getCompressionMethod();
         let cacheId = -1;
         const cachePaths = yield utils.resolvePaths(paths);
-        core6.debug("Cache Paths:");
-        core6.debug(`${JSON.stringify(cachePaths)}`);
+        core5.debug("Cache Paths:");
+        core5.debug(`${JSON.stringify(cachePaths)}`);
         if (cachePaths.length === 0) {
           throw new Error(`Path Validation Error: Path(s) specified in the action for caching do(es) not exist, hence no cache is being saved.`);
         }
         const archiveFolder = yield utils.createTempDirectory();
         const archivePath = path4.join(archiveFolder, utils.getCacheFileName(compressionMethod));
-        core6.debug(`Archive Path: ${archivePath}`);
+        core5.debug(`Archive Path: ${archivePath}`);
         try {
           yield (0, tar_1.createTar)(archiveFolder, cachePaths, compressionMethod);
-          if (core6.isDebug()) {
+          if (core5.isDebug()) {
             yield (0, tar_1.listTar)(archivePath, compressionMethod);
           }
           const fileSizeLimit = 10 * 1024 * 1024 * 1024;
           const archiveFileSize = utils.getArchiveFileSizeInBytes(archivePath);
-          core6.debug(`File Size: ${archiveFileSize}`);
+          core5.debug(`File Size: ${archiveFileSize}`);
           if (archiveFileSize > fileSizeLimit && !(0, config_1.isGhes)()) {
             throw new Error(`Cache size of ~${Math.round(archiveFileSize / (1024 * 1024))} MB (${archiveFileSize} B) is over the 10GB limit, not saving cache.`);
           }
-          core6.debug("Reserving Cache");
+          core5.debug("Reserving Cache");
           const reserveCacheResponse = yield cacheHttpClient.reserveCache(key, paths, {
             compressionMethod,
             enableCrossOsArchive,
@@ -70503,26 +70503,26 @@ var require_cache4 = __commonJS({
           } else {
             throw new ReserveCacheError(`Unable to reserve cache with key ${key}, another job may be creating this cache. More details: ${(_e = reserveCacheResponse === null || reserveCacheResponse === void 0 ? void 0 : reserveCacheResponse.error) === null || _e === void 0 ? void 0 : _e.message}`);
           }
-          core6.debug(`Saving Cache (ID: ${cacheId})`);
+          core5.debug(`Saving Cache (ID: ${cacheId})`);
           yield cacheHttpClient.saveCache(cacheId, archivePath, "", options);
         } catch (error2) {
           const typedError = error2;
           if (typedError.name === ValidationError.name) {
             throw error2;
           } else if (typedError.name === ReserveCacheError.name) {
-            core6.info(`Failed to save: ${typedError.message}`);
+            core5.info(`Failed to save: ${typedError.message}`);
           } else {
             if (typedError instanceof http_client_1.HttpClientError && typeof typedError.statusCode === "number" && typedError.statusCode >= 500) {
-              core6.error(`Failed to save: ${typedError.message}`);
+              core5.error(`Failed to save: ${typedError.message}`);
             } else {
-              core6.warning(`Failed to save: ${typedError.message}`);
+              core5.warning(`Failed to save: ${typedError.message}`);
             }
           }
         } finally {
           try {
             yield utils.unlinkFile(archivePath);
           } catch (error2) {
-            core6.debug(`Failed to delete archive: ${error2}`);
+            core5.debug(`Failed to delete archive: ${error2}`);
           }
         }
         return cacheId;
@@ -70535,23 +70535,23 @@ var require_cache4 = __commonJS({
         const twirpClient = cacheTwirpClient.internalCacheTwirpClient();
         let cacheId = -1;
         const cachePaths = yield utils.resolvePaths(paths);
-        core6.debug("Cache Paths:");
-        core6.debug(`${JSON.stringify(cachePaths)}`);
+        core5.debug("Cache Paths:");
+        core5.debug(`${JSON.stringify(cachePaths)}`);
         if (cachePaths.length === 0) {
           throw new Error(`Path Validation Error: Path(s) specified in the action for caching do(es) not exist, hence no cache is being saved.`);
         }
         const archiveFolder = yield utils.createTempDirectory();
         const archivePath = path4.join(archiveFolder, utils.getCacheFileName(compressionMethod));
-        core6.debug(`Archive Path: ${archivePath}`);
+        core5.debug(`Archive Path: ${archivePath}`);
         try {
           yield (0, tar_1.createTar)(archiveFolder, cachePaths, compressionMethod);
-          if (core6.isDebug()) {
+          if (core5.isDebug()) {
             yield (0, tar_1.listTar)(archivePath, compressionMethod);
           }
           const archiveFileSize = utils.getArchiveFileSizeInBytes(archivePath);
-          core6.debug(`File Size: ${archiveFileSize}`);
+          core5.debug(`File Size: ${archiveFileSize}`);
           options.archiveSizeBytes = archiveFileSize;
-          core6.debug("Reserving Cache");
+          core5.debug("Reserving Cache");
           const version = utils.getCacheVersion(paths, compressionMethod, enableCrossOsArchive);
           const request = {
             key,
@@ -70562,16 +70562,16 @@ var require_cache4 = __commonJS({
             const response = yield twirpClient.CreateCacheEntry(request);
             if (!response.ok) {
               if (response.message) {
-                core6.warning(`Cache reservation failed: ${response.message}`);
+                core5.warning(`Cache reservation failed: ${response.message}`);
               }
               throw new Error(response.message || "Response was not ok");
             }
             signedUploadUrl = response.signedUploadUrl;
           } catch (error2) {
-            core6.debug(`Failed to reserve cache: ${error2}`);
+            core5.debug(`Failed to reserve cache: ${error2}`);
             throw new ReserveCacheError(`Unable to reserve cache with key ${key}, another job may be creating this cache.`);
           }
-          core6.debug(`Attempting to upload cache located at: ${archivePath}`);
+          core5.debug(`Attempting to upload cache located at: ${archivePath}`);
           yield cacheHttpClient.saveCache(cacheId, archivePath, signedUploadUrl, options);
           const finalizeRequest = {
             key,
@@ -70579,7 +70579,7 @@ var require_cache4 = __commonJS({
             sizeBytes: `${archiveFileSize}`
           };
           const finalizeResponse = yield twirpClient.FinalizeCacheEntryUpload(finalizeRequest);
-          core6.debug(`FinalizeCacheEntryUploadResponse: ${finalizeResponse.ok}`);
+          core5.debug(`FinalizeCacheEntryUploadResponse: ${finalizeResponse.ok}`);
           if (!finalizeResponse.ok) {
             if (finalizeResponse.message) {
               throw new FinalizeCacheError(finalizeResponse.message);
@@ -70592,21 +70592,21 @@ var require_cache4 = __commonJS({
           if (typedError.name === ValidationError.name) {
             throw error2;
           } else if (typedError.name === ReserveCacheError.name) {
-            core6.info(`Failed to save: ${typedError.message}`);
+            core5.info(`Failed to save: ${typedError.message}`);
           } else if (typedError.name === FinalizeCacheError.name) {
-            core6.warning(typedError.message);
+            core5.warning(typedError.message);
           } else {
             if (typedError instanceof http_client_1.HttpClientError && typeof typedError.statusCode === "number" && typedError.statusCode >= 500) {
-              core6.error(`Failed to save: ${typedError.message}`);
+              core5.error(`Failed to save: ${typedError.message}`);
             } else {
-              core6.warning(`Failed to save: ${typedError.message}`);
+              core5.warning(`Failed to save: ${typedError.message}`);
             }
           }
         } finally {
           try {
             yield utils.unlinkFile(archivePath);
           } catch (error2) {
-            core6.debug(`Failed to delete archive: ${error2}`);
+            core5.debug(`Failed to delete archive: ${error2}`);
           }
         }
         return cacheId;
@@ -70658,8 +70658,8 @@ var require_context = __commonJS({
       }
       get repo() {
         if (process.env.GITHUB_REPOSITORY) {
-          const [owner2, repo2] = process.env.GITHUB_REPOSITORY.split("/");
-          return { owner: owner2, repo: repo2 };
+          const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
+          return { owner, repo };
         }
         if (this.payload.repository) {
           return {
@@ -71795,8 +71795,8 @@ var require_dist_node2 = __commonJS({
     function isKeyOperator(operator) {
       return operator === ";" || operator === "&" || operator === "?";
     }
-    function getValues(context3, operator, key, modifier) {
-      var value = context3[key], result2 = [];
+    function getValues(context2, operator, key, modifier) {
+      var value = context2[key], result2 = [];
       if (isDefined(value) && value !== "") {
         if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
           value = value.toString();
@@ -71860,7 +71860,7 @@ var require_dist_node2 = __commonJS({
         expand: expand.bind(null, template)
       };
     }
-    function expand(template, context3) {
+    function expand(template, context2) {
       var operators = ["+", "#", ".", "/", ";", "?", "&"];
       template = template.replace(
         /\{([^\{\}]+)\}|([^\{\}]+)/g,
@@ -71874,7 +71874,7 @@ var require_dist_node2 = __commonJS({
             }
             expression.split(/,/g).forEach(function(variable) {
               var tmp = /([^:\*]*)(?::(\d+)|(\*))?/.exec(variable);
-              values.push(getValues(context3, operator, tmp[1], tmp[2] || tmp[3]));
+              values.push(getValues(context2, operator, tmp[1], tmp[2] || tmp[3]));
             });
             if (operator && operator !== "+") {
               var separator = ",";
@@ -75377,11 +75377,11 @@ var require_github = __commonJS({
     var Context = __importStar2(require_context());
     var utils_1 = require_utils6();
     exports2.context = new Context.Context();
-    function getOctokit4(token, options, ...additionalPlugins) {
+    function getOctokit3(token, options, ...additionalPlugins) {
       const GitHubWithPlugins = utils_1.GitHub.plugin(...additionalPlugins);
       return new GitHubWithPlugins((0, utils_1.getOctokitOptions)(token, options));
     }
-    exports2.getOctokit = getOctokit4;
+    exports2.getOctokit = getOctokit3;
   }
 });
 
@@ -76046,7 +76046,7 @@ var require_util10 = __commonJS({
     var fs2 = require("fs");
     var path4 = require("path");
     var spawn = require("child_process").spawn;
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var execSync = require("child_process").execSync;
     var util = require("util");
     var _platform = process.platform;
@@ -76651,7 +76651,7 @@ var require_util10 = __commonJS({
         opts = execOptsWin;
       }
       let newCmd = "chcp 65001 > nul && cmd /C " + cmd + " && chcp " + codepage + " > nul";
-      exec4(newCmd, opts, function(error2, stdout) {
+      exec3(newCmd, opts, function(error2, stdout) {
         callback(error2, stdout);
       });
     }
@@ -78597,7 +78597,7 @@ var require_osinfo = __commonJS({
     var os2 = require("os");
     var fs2 = require("fs");
     var util = require_util10();
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var execSync = require("child_process").execSync;
     var _platform = process.platform;
     var _linux = _platform === "linux" || _platform === "android";
@@ -78778,7 +78778,7 @@ var require_osinfo = __commonJS({
             uefi: false
           };
           if (_linux) {
-            exec4("cat /etc/*-release; cat /usr/lib/os-release; cat /etc/openwrt_release", function(error2, stdout) {
+            exec3("cat /etc/*-release; cat /usr/lib/os-release; cat /etc/openwrt_release", function(error2, stdout) {
               let release = {};
               let lines = stdout.toString().split("\n");
               lines.forEach(function(line) {
@@ -78815,7 +78815,7 @@ var require_osinfo = __commonJS({
             });
           }
           if (_freebsd || _openbsd || _netbsd) {
-            exec4("sysctl kern.ostype kern.osrelease kern.osrevision kern.hostuuid machdep.bootmethod kern.geom.confxml", function(error2, stdout) {
+            exec3("sysctl kern.ostype kern.osrelease kern.osrevision kern.hostuuid machdep.bootmethod kern.geom.confxml", function(error2, stdout) {
               let lines = stdout.toString().split("\n");
               const distro = util.getValue(lines, "kern.ostype");
               const logofile = getLogoFile(distro);
@@ -78838,7 +78838,7 @@ var require_osinfo = __commonJS({
             });
           }
           if (_darwin) {
-            exec4("sw_vers; sysctl kern.ostype kern.osrelease kern.osrevision kern.uuid", function(error2, stdout) {
+            exec3("sw_vers; sysctl kern.ostype kern.osrelease kern.osrevision kern.uuid", function(error2, stdout) {
               let lines = stdout.toString().split("\n");
               result2.serial = util.getValue(lines, "kern.uuid");
               result2.distro = util.getValue(lines, "ProductName");
@@ -78875,7 +78875,7 @@ var require_osinfo = __commonJS({
           }
           if (_sunos) {
             result2.release = result2.kernel;
-            exec4("uname -o", function(error2, stdout) {
+            exec3("uname -o", function(error2, stdout) {
               let lines = stdout.toString().split("\n");
               result2.distro = lines[0];
               result2.logofile = getLogoFile(result2.distro);
@@ -78932,7 +78932,7 @@ var require_osinfo = __commonJS({
             if (!err) {
               return resolve(true);
             } else {
-              exec4('dmesg | grep -E "EFI v"', function(error2, stdout) {
+              exec3('dmesg | grep -E "EFI v"', function(error2, stdout) {
                 if (!error2) {
                   const lines = stdout.toString().split("\n");
                   return resolve(lines.length > 0);
@@ -78948,12 +78948,12 @@ var require_osinfo = __commonJS({
       return new Promise((resolve) => {
         process.nextTick(() => {
           try {
-            exec4('findstr /C:"Detected boot environment" "%windir%\\Panther\\setupact.log"', util.execOptsWin, function(error2, stdout) {
+            exec3('findstr /C:"Detected boot environment" "%windir%\\Panther\\setupact.log"', util.execOptsWin, function(error2, stdout) {
               if (!error2) {
                 const line = stdout.toString().split("\n\r")[0];
                 return resolve(line.toLowerCase().indexOf("efi") >= 0);
               } else {
-                exec4("echo %firmware_type%", util.execOptsWin, function(error3, stdout2) {
+                exec3("echo %firmware_type%", util.execOptsWin, function(error3, stdout2) {
                   if (!error3) {
                     const line = stdout2.toString() || "";
                     return resolve(line.toLowerCase().indexOf("efi") >= 0);
@@ -79076,7 +79076,7 @@ var require_osinfo = __commonJS({
           try {
             if ({}.hasOwnProperty.call(appsObj.versions, "openssl")) {
               appsObj.versions.openssl = process.versions.openssl;
-              exec4("openssl version", function(error2, stdout) {
+              exec3("openssl version", function(error2, stdout) {
                 if (!error2) {
                   let openssl_string = stdout.toString().split("\n")[0].trim();
                   let openssl = openssl_string.split(" ");
@@ -79087,7 +79087,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "npm")) {
-              exec4("npm -v", function(error2, stdout) {
+              exec3("npm -v", function(error2, stdout) {
                 if (!error2) {
                   appsObj.versions.npm = stdout.toString().split("\n")[0];
                 }
@@ -79099,7 +79099,7 @@ var require_osinfo = __commonJS({
               if (_windows) {
                 cmd += ".cmd";
               }
-              exec4(`${cmd} -v`, function(error2, stdout) {
+              exec3(`${cmd} -v`, function(error2, stdout) {
                 if (!error2) {
                   let pm2 = stdout.toString().split("\n")[0].trim();
                   if (!pm2.startsWith("[PM2]")) {
@@ -79110,7 +79110,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "yarn")) {
-              exec4("yarn --version", function(error2, stdout) {
+              exec3("yarn --version", function(error2, stdout) {
                 if (!error2) {
                   appsObj.versions.yarn = stdout.toString().split("\n")[0];
                 }
@@ -79122,7 +79122,7 @@ var require_osinfo = __commonJS({
               if (_windows) {
                 cmd += ".cmd";
               }
-              exec4(`${cmd} --version`, function(error2, stdout) {
+              exec3(`${cmd} --version`, function(error2, stdout) {
                 if (!error2) {
                   const gulp = stdout.toString().split("\n")[0] || "";
                   appsObj.versions.gulp = (gulp.toLowerCase().split("version")[1] || "").trim();
@@ -79132,7 +79132,7 @@ var require_osinfo = __commonJS({
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "homebrew")) {
               cmd = "brew";
-              exec4(`${cmd} --version`, function(error2, stdout) {
+              exec3(`${cmd} --version`, function(error2, stdout) {
                 if (!error2) {
                   const brew = stdout.toString().split("\n")[0] || "";
                   appsObj.versions.homebrew = (brew.toLowerCase().split(" ")[1] || "").trim();
@@ -79145,7 +79145,7 @@ var require_osinfo = __commonJS({
               if (_windows) {
                 cmd += ".cmd";
               }
-              exec4(`${cmd} --version`, function(error2, stdout) {
+              exec3(`${cmd} --version`, function(error2, stdout) {
                 if (!error2) {
                   const tsc = stdout.toString().split("\n")[0] || "";
                   appsObj.versions.tsc = (tsc.toLowerCase().split("version")[1] || "").trim();
@@ -79158,7 +79158,7 @@ var require_osinfo = __commonJS({
               if (_windows) {
                 cmd += ".cmd";
               }
-              exec4(`${cmd} --version`, function(error2, stdout) {
+              exec3(`${cmd} --version`, function(error2, stdout) {
                 if (!error2) {
                   const grunt = stdout.toString().split("\n")[0] || "";
                   appsObj.versions.grunt = (grunt.toLowerCase().split("cli v")[1] || "").trim();
@@ -79170,7 +79170,7 @@ var require_osinfo = __commonJS({
               if (_darwin) {
                 const gitHomebrewExists = fs2.existsSync("/usr/local/Cellar/git") || fs2.existsSync("/opt/homebrew/bin/git");
                 if (util.darwinXcodeExists() || gitHomebrewExists) {
-                  exec4("git --version", function(error2, stdout) {
+                  exec3("git --version", function(error2, stdout) {
                     if (!error2) {
                       let git = stdout.toString().split("\n")[0] || "";
                       git = (git.toLowerCase().split("version")[1] || "").trim();
@@ -79182,7 +79182,7 @@ var require_osinfo = __commonJS({
                   functionProcessed();
                 }
               } else {
-                exec4("git --version", function(error2, stdout) {
+                exec3("git --version", function(error2, stdout) {
                   if (!error2) {
                     let git = stdout.toString().split("\n")[0] || "";
                     git = (git.toLowerCase().split("version")[1] || "").trim();
@@ -79193,7 +79193,7 @@ var require_osinfo = __commonJS({
               }
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "apache")) {
-              exec4("apachectl -v 2>&1", function(error2, stdout) {
+              exec3("apachectl -v 2>&1", function(error2, stdout) {
                 if (!error2) {
                   const apache = (stdout.toString().split("\n")[0] || "").split(":");
                   appsObj.versions.apache = apache.length > 1 ? apache[1].replace("Apache", "").replace("/", "").split("(")[0].trim() : "";
@@ -79202,7 +79202,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "nginx")) {
-              exec4("nginx -v 2>&1", function(error2, stdout) {
+              exec3("nginx -v 2>&1", function(error2, stdout) {
                 if (!error2) {
                   const nginx = stdout.toString().split("\n")[0] || "";
                   appsObj.versions.nginx = (nginx.toLowerCase().split("/")[1] || "").trim();
@@ -79211,7 +79211,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "mysql")) {
-              exec4("mysql -V", function(error2, stdout) {
+              exec3("mysql -V", function(error2, stdout) {
                 if (!error2) {
                   let mysql = stdout.toString().split("\n")[0] || "";
                   mysql = mysql.toLowerCase();
@@ -79230,7 +79230,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "php")) {
-              exec4("php -v", function(error2, stdout) {
+              exec3("php -v", function(error2, stdout) {
                 if (!error2) {
                   const php = stdout.toString().split("\n")[0] || "";
                   let parts = php.split("(");
@@ -79243,7 +79243,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "redis")) {
-              exec4("redis-server --version", function(error2, stdout) {
+              exec3("redis-server --version", function(error2, stdout) {
                 if (!error2) {
                   const redis = stdout.toString().split("\n")[0] || "";
                   const parts = redis.split(" ");
@@ -79253,7 +79253,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "docker")) {
-              exec4("docker --version", function(error2, stdout) {
+              exec3("docker --version", function(error2, stdout) {
                 if (!error2) {
                   const docker = stdout.toString().split("\n")[0] || "";
                   const parts = docker.split(" ");
@@ -79263,7 +79263,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "postfix")) {
-              exec4("postconf -d | grep mail_version", function(error2, stdout) {
+              exec3("postconf -d | grep mail_version", function(error2, stdout) {
                 if (!error2) {
                   const postfix = stdout.toString().split("\n") || [];
                   appsObj.versions.postfix = util.getValue(postfix, "mail_version", "=", true);
@@ -79272,7 +79272,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "mongodb")) {
-              exec4("mongod --version", function(error2, stdout) {
+              exec3("mongod --version", function(error2, stdout) {
                 if (!error2) {
                   const mongodb = stdout.toString().split("\n")[0] || "";
                   appsObj.versions.mongodb = (mongodb.toLowerCase().split(",")[0] || "").replace(/[^0-9.]/g, "");
@@ -79282,11 +79282,11 @@ var require_osinfo = __commonJS({
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "postgresql")) {
               if (_linux) {
-                exec4("locate bin/postgres", function(error2, stdout) {
+                exec3("locate bin/postgres", function(error2, stdout) {
                   if (!error2) {
                     const postgresqlBin = stdout.toString().split("\n").sort();
                     if (postgresqlBin.length) {
-                      exec4(postgresqlBin[postgresqlBin.length - 1] + " -V", function(error3, stdout2) {
+                      exec3(postgresqlBin[postgresqlBin.length - 1] + " -V", function(error3, stdout2) {
                         if (!error3) {
                           const postgresql = stdout2.toString().split("\n")[0].split(" ") || [];
                           appsObj.versions.postgresql = postgresql.length ? postgresql[postgresql.length - 1] : "";
@@ -79297,7 +79297,7 @@ var require_osinfo = __commonJS({
                       functionProcessed();
                     }
                   } else {
-                    exec4("psql -V", function(error3, stdout2) {
+                    exec3("psql -V", function(error3, stdout2) {
                       if (!error3) {
                         const postgresql = stdout2.toString().split("\n")[0].split(" ") || [];
                         appsObj.versions.postgresql = postgresql.length ? postgresql[postgresql.length - 1] : "";
@@ -79326,12 +79326,12 @@ var require_osinfo = __commonJS({
                     functionProcessed();
                   });
                 } else {
-                  exec4("postgres -V", function(error2, stdout) {
+                  exec3("postgres -V", function(error2, stdout) {
                     if (!error2) {
                       const postgresql = stdout.toString().split("\n")[0].split(" ") || [];
                       appsObj.versions.postgresql = postgresql.length ? postgresql[postgresql.length - 1] : "";
                     } else {
-                      exec4("pg_config --version", function(error3, stdout2) {
+                      exec3("pg_config --version", function(error3, stdout2) {
                         if (!error3) {
                           const postgresql = stdout2.toString().split("\n")[0].split(" ") || [];
                           appsObj.versions.postgresql = postgresql.length ? postgresql[postgresql.length - 1] : "";
@@ -79344,7 +79344,7 @@ var require_osinfo = __commonJS({
               }
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "perl")) {
-              exec4("perl -v", function(error2, stdout) {
+              exec3("perl -v", function(error2, stdout) {
                 if (!error2) {
                   const perl = stdout.toString().split("\n") || "";
                   while (perl.length > 0 && perl[0].trim() === "") {
@@ -79367,7 +79367,7 @@ var require_osinfo = __commonJS({
                   const gitHomebrewExists2 = fs2.existsSync("/opt/homebrew/bin/python");
                   if (util.darwinXcodeExists() && util.semverCompare("12.0.1", osVersion) < 0 || gitHomebrewExists1 || gitHomebrewExists2) {
                     const cmd2 = gitHomebrewExists1 ? "/usr/local/Cellar/python -V 2>&1" : gitHomebrewExists2 ? "/opt/homebrew/bin/python -V 2>&1" : "python -V 2>&1";
-                    exec4(cmd2, function(error2, stdout2) {
+                    exec3(cmd2, function(error2, stdout2) {
                       if (!error2) {
                         const python = stdout2.toString().split("\n")[0] || "";
                         appsObj.versions.python = python.toLowerCase().replace("python", "").trim();
@@ -79381,7 +79381,7 @@ var require_osinfo = __commonJS({
                   functionProcessed();
                 }
               } else {
-                exec4("python -V 2>&1", function(error2, stdout) {
+                exec3("python -V 2>&1", function(error2, stdout) {
                   if (!error2) {
                     const python = stdout.toString().split("\n")[0] || "";
                     appsObj.versions.python = python.toLowerCase().replace("python", "").trim();
@@ -79394,7 +79394,7 @@ var require_osinfo = __commonJS({
               if (_darwin) {
                 const gitHomebrewExists = fs2.existsSync("/usr/local/Cellar/python3") || fs2.existsSync("/opt/homebrew/bin/python3");
                 if (util.darwinXcodeExists() || gitHomebrewExists) {
-                  exec4("python3 -V 2>&1", function(error2, stdout) {
+                  exec3("python3 -V 2>&1", function(error2, stdout) {
                     if (!error2) {
                       const python = stdout.toString().split("\n")[0] || "";
                       appsObj.versions.python3 = python.toLowerCase().replace("python", "").trim();
@@ -79405,7 +79405,7 @@ var require_osinfo = __commonJS({
                   functionProcessed();
                 }
               } else {
-                exec4("python3 -V 2>&1", function(error2, stdout) {
+                exec3("python3 -V 2>&1", function(error2, stdout) {
                   if (!error2) {
                     const python = stdout.toString().split("\n")[0] || "";
                     appsObj.versions.python3 = python.toLowerCase().replace("python", "").trim();
@@ -79418,7 +79418,7 @@ var require_osinfo = __commonJS({
               if (_darwin) {
                 const gitHomebrewExists = fs2.existsSync("/usr/local/Cellar/pip") || fs2.existsSync("/opt/homebrew/bin/pip");
                 if (util.darwinXcodeExists() || gitHomebrewExists) {
-                  exec4("pip -V 2>&1", function(error2, stdout) {
+                  exec3("pip -V 2>&1", function(error2, stdout) {
                     if (!error2) {
                       const pip = stdout.toString().split("\n")[0] || "";
                       const parts = pip.split(" ");
@@ -79430,7 +79430,7 @@ var require_osinfo = __commonJS({
                   functionProcessed();
                 }
               } else {
-                exec4("pip -V 2>&1", function(error2, stdout) {
+                exec3("pip -V 2>&1", function(error2, stdout) {
                   if (!error2) {
                     const pip = stdout.toString().split("\n")[0] || "";
                     const parts = pip.split(" ");
@@ -79444,7 +79444,7 @@ var require_osinfo = __commonJS({
               if (_darwin) {
                 const gitHomebrewExists = fs2.existsSync("/usr/local/Cellar/pip3") || fs2.existsSync("/opt/homebrew/bin/pip3");
                 if (util.darwinXcodeExists() || gitHomebrewExists) {
-                  exec4("pip3 -V 2>&1", function(error2, stdout) {
+                  exec3("pip3 -V 2>&1", function(error2, stdout) {
                     if (!error2) {
                       const pip = stdout.toString().split("\n")[0] || "";
                       const parts = pip.split(" ");
@@ -79456,7 +79456,7 @@ var require_osinfo = __commonJS({
                   functionProcessed();
                 }
               } else {
-                exec4("pip3 -V 2>&1", function(error2, stdout) {
+                exec3("pip3 -V 2>&1", function(error2, stdout) {
                   if (!error2) {
                     const pip = stdout.toString().split("\n")[0] || "";
                     const parts = pip.split(" ");
@@ -79468,9 +79468,9 @@ var require_osinfo = __commonJS({
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "java")) {
               if (_darwin) {
-                exec4("/usr/libexec/java_home -V 2>&1", function(error2, stdout) {
+                exec3("/usr/libexec/java_home -V 2>&1", function(error2, stdout) {
                   if (!error2 && stdout.toString().toLowerCase().indexOf("no java runtime") === -1) {
-                    exec4("java -version 2>&1", function(error3, stdout2) {
+                    exec3("java -version 2>&1", function(error3, stdout2) {
                       if (!error3) {
                         const java = stdout2.toString().split("\n")[0] || "";
                         const parts = java.split('"');
@@ -79483,7 +79483,7 @@ var require_osinfo = __commonJS({
                   }
                 });
               } else {
-                exec4("java -version 2>&1", function(error2, stdout) {
+                exec3("java -version 2>&1", function(error2, stdout) {
                   if (!error2) {
                     const java = stdout.toString().split("\n")[0] || "";
                     const parts = java.split('"');
@@ -79495,14 +79495,14 @@ var require_osinfo = __commonJS({
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "gcc")) {
               if (_darwin && util.darwinXcodeExists() || !_darwin) {
-                exec4("gcc -dumpversion", function(error2, stdout) {
+                exec3("gcc -dumpversion", function(error2, stdout) {
                   if (!error2) {
                     appsObj.versions.gcc = stdout.toString().split("\n")[0].trim() || "";
                   }
                   if (appsObj.versions.gcc.indexOf(".") > -1) {
                     functionProcessed();
                   } else {
-                    exec4("gcc --version", function(error3, stdout2) {
+                    exec3("gcc --version", function(error3, stdout2) {
                       if (!error3) {
                         const gcc = stdout2.toString().split("\n")[0].trim();
                         if (gcc.indexOf("gcc") > -1 && gcc.indexOf(")") > -1) {
@@ -79519,7 +79519,7 @@ var require_osinfo = __commonJS({
               }
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "virtualbox")) {
-              exec4(util.getVboxmanage() + " -v 2>&1", function(error2, stdout) {
+              exec3(util.getVboxmanage() + " -v 2>&1", function(error2, stdout) {
                 if (!error2) {
                   const vbox = stdout.toString().split("\n")[0] || "";
                   const parts = vbox.split("r");
@@ -79529,7 +79529,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "bash")) {
-              exec4("bash --version", function(error2, stdout) {
+              exec3("bash --version", function(error2, stdout) {
                 if (!error2) {
                   const line = stdout.toString().split("\n")[0];
                   const parts = line.split(" version ");
@@ -79541,7 +79541,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "zsh")) {
-              exec4("zsh --version", function(error2, stdout) {
+              exec3("zsh --version", function(error2, stdout) {
                 if (!error2) {
                   const line = stdout.toString().split("\n")[0];
                   const parts = line.split("zsh ");
@@ -79553,7 +79553,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "fish")) {
-              exec4("fish --version", function(error2, stdout) {
+              exec3("fish --version", function(error2, stdout) {
                 if (!error2) {
                   const line = stdout.toString().split("\n")[0];
                   const parts = line.split(" version ");
@@ -79565,7 +79565,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "bun")) {
-              exec4("bun -v", function(error2, stdout) {
+              exec3("bun -v", function(error2, stdout) {
                 if (!error2) {
                   const line = stdout.toString().split("\n")[0].trim();
                   appsObj.versions.bun = line;
@@ -79574,7 +79574,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "deno")) {
-              exec4("deno -v", function(error2, stdout) {
+              exec3("deno -v", function(error2, stdout) {
                 if (!error2) {
                   const line = stdout.toString().split("\n")[0].trim();
                   const parts = line.split(" ");
@@ -79586,7 +79586,7 @@ var require_osinfo = __commonJS({
               });
             }
             if ({}.hasOwnProperty.call(appsObj.versions, "node")) {
-              exec4("node -v", function(error2, stdout) {
+              exec3("node -v", function(error2, stdout) {
                 if (!error2) {
                   let line = stdout.toString().split("\n")[0].trim();
                   if (line.startsWith("v")) {
@@ -79661,7 +79661,7 @@ var require_osinfo = __commonJS({
             }
           } else {
             let result2 = "";
-            exec4("echo $SHELL", function(error2, stdout) {
+            exec3("echo $SHELL", function(error2, stdout) {
               if (!error2) {
                 result2 = stdout.toString().split("\n")[0];
               }
@@ -79715,7 +79715,7 @@ var require_osinfo = __commonJS({
           };
           let parts;
           if (_darwin) {
-            exec4("system_profiler SPHardwareDataType -json", function(error2, stdout) {
+            exec3("system_profiler SPHardwareDataType -json", function(error2, stdout) {
               if (!error2) {
                 try {
                   const jsonObj = JSON.parse(stdout.toString());
@@ -79738,7 +79738,7 @@ var require_osinfo = __commonJS({
             const cmd = `echo -n "os: "; cat /var/lib/dbus/machine-id 2> /dev/null ||
 cat /etc/machine-id 2> /dev/null; echo;
 echo -n "hardware: "; cat /sys/class/dmi/id/product_uuid 2> /dev/null; echo;`;
-            exec4(cmd, function(error2, stdout) {
+            exec3(cmd, function(error2, stdout) {
               const lines = stdout.toString().split("\n");
               result2.os = util.getValue(lines, "os").toLowerCase();
               result2.hardware = util.getValue(lines, "hardware").toLowerCase();
@@ -79754,7 +79754,7 @@ echo -n "hardware: "; cat /sys/class/dmi/id/product_uuid 2> /dev/null; echo;`;
             });
           }
           if (_freebsd || _openbsd || _netbsd) {
-            exec4("sysctl -i kern.hostid kern.hostuuid", function(error2, stdout) {
+            exec3("sysctl -i kern.hostid kern.hostuuid", function(error2, stdout) {
               const lines = stdout.toString().split("\n");
               result2.hardware = util.getValue(lines, "kern.hostid", ":").toLowerCase();
               result2.os = util.getValue(lines, "kern.hostuuid", ":").toLowerCase();
@@ -79778,7 +79778,7 @@ echo -n "hardware: "; cat /sys/class/dmi/id/product_uuid 2> /dev/null; echo;`;
             util.powerShell("Get-CimInstance Win32_ComputerSystemProduct | select UUID | fl").then((stdout) => {
               let lines = stdout.split("\r\n");
               result2.hardware = util.getValue(lines, "uuid", ":").toLowerCase();
-              exec4(`${sysdir}\\reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Cryptography" /v MachineGuid`, util.execOptsWin, function(error2, stdout2) {
+              exec3(`${sysdir}\\reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Cryptography" /v MachineGuid`, util.execOptsWin, function(error2, stdout2) {
                 parts = stdout2.toString().split("\n\r")[0].split("REG_SZ");
                 result2.os = parts.length > 1 ? parts[1].replace(/\r+|\n+|\s+/ig, "").toLowerCase() : "";
                 if (callback) {
@@ -79803,7 +79803,7 @@ var require_system = __commonJS({
     var os2 = require("os");
     var util = require_util10();
     var { uuid } = require_osinfo();
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var execSync = require("child_process").execSync;
     var execPromise = util.promisify(require("child_process").exec);
     var _platform = process.platform;
@@ -79827,7 +79827,7 @@ var require_system = __commonJS({
             virtual: false
           };
           if (_linux || _freebsd || _openbsd || _netbsd) {
-            exec4("export LC_ALL=C; dmidecode -t system 2>/dev/null; unset LC_ALL", function(error2, stdout) {
+            exec3("export LC_ALL=C; dmidecode -t system 2>/dev/null; unset LC_ALL", function(error2, stdout) {
               let lines = stdout.toString().split("\n");
               result2.manufacturer = cleanDefaults(util.getValue(lines, "manufacturer"));
               result2.model = cleanDefaults(util.getValue(lines, "product name"));
@@ -80016,7 +80016,7 @@ var require_system = __commonJS({
             });
           }
           if (_darwin) {
-            exec4("ioreg -c IOPlatformExpertDevice -d 2", function(error2, stdout) {
+            exec3("ioreg -c IOPlatformExpertDevice -d 2", function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().replace(/[<>"]/g, "").split("\n");
                 const model = util.getAppleModel(util.getValue(lines, "model", "=", true));
@@ -80177,7 +80177,7 @@ var require_system = __commonJS({
             } else {
               cmd = "export LC_ALL=C; dmidecode -t bios 2>/dev/null; unset LC_ALL";
             }
-            exec4(cmd, function(error2, stdout) {
+            exec3(cmd, function(error2, stdout) {
               let lines = stdout.toString().split("\n");
               result2.vendor = util.getValue(lines, "Vendor");
               result2.version = util.getValue(lines, "Version");
@@ -80219,7 +80219,7 @@ var require_system = __commonJS({
           }
           if (_darwin) {
             result2.vendor = "Apple Inc.";
-            exec4(
+            exec3(
               "system_profiler SPHardwareDataType -json",
               function(error2, stdout) {
                 try {
@@ -80504,7 +80504,7 @@ var require_system = __commonJS({
             echo -n "chassis_type: "; cat /sys/devices/virtual/dmi/id/chassis_type 2>/dev/null; echo;
             echo -n "chassis_vendor: "; cat /sys/devices/virtual/dmi/id/chassis_vendor 2>/dev/null; echo;
             echo -n "chassis_version: "; cat /sys/devices/virtual/dmi/id/chassis_version 2>/dev/null; echo;`;
-            exec4(cmd, function(error2, stdout) {
+            exec3(cmd, function(error2, stdout) {
               let lines = stdout.toString().split("\n");
               result2.manufacturer = cleanDefaults(util.getValue(lines, "chassis_vendor"));
               const ctype = parseInt(util.getValue(lines, "chassis_type").replace(/\D/g, ""));
@@ -80519,7 +80519,7 @@ var require_system = __commonJS({
             });
           }
           if (_darwin) {
-            exec4("ioreg -c IOPlatformExpertDevice -d 2", function(error2, stdout) {
+            exec3("ioreg -c IOPlatformExpertDevice -d 2", function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().replace(/[<>"]/g, "").split("\n");
                 const model = util.getAppleModel(util.getValue(lines, "model", "=", true));
@@ -80584,7 +80584,7 @@ var require_cpu = __commonJS({
   "../../node_modules/systeminformation/lib/cpu.js"(exports2) {
     "use strict";
     var os2 = require("os");
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var execSync = require("child_process").execSync;
     var fs2 = require("fs");
     var util = require_util10();
@@ -81252,7 +81252,7 @@ var require_cpu = __commonJS({
             result2.flags = flags;
             result2.virtualization = flags.indexOf("vmx") > -1 || flags.indexOf("svm") > -1;
             if (_darwin) {
-              exec4("sysctl machdep.cpu hw.cpufrequency_max hw.cpufrequency_min hw.packages hw.physicalcpu_max hw.ncpu hw.tbfrequency hw.cpufamily hw.cpusubfamily", function(error2, stdout) {
+              exec3("sysctl machdep.cpu hw.cpufrequency_max hw.cpufrequency_min hw.packages hw.physicalcpu_max hw.ncpu hw.tbfrequency hw.cpufamily hw.cpusubfamily", function(error2, stdout) {
                 let lines = stdout.toString().split("\n");
                 const modelline = util.getValue(lines, "machdep.cpu.brand_string");
                 const modellineParts = modelline.split("@");
@@ -81305,7 +81305,7 @@ var require_cpu = __commonJS({
               if (os2.cpus()[0] && os2.cpus()[0].model) {
                 modelline = os2.cpus()[0].model;
               }
-              exec4('export LC_ALL=C; lscpu; echo -n "Governor: "; cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null; echo; unset LC_ALL', function(error2, stdout) {
+              exec3('export LC_ALL=C; lscpu; echo -n "Governor: "; cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null; echo; unset LC_ALL', function(error2, stdout) {
                 if (!error2) {
                   lines = stdout.toString().split("\n");
                 }
@@ -81380,7 +81380,7 @@ var require_cpu = __commonJS({
                   }
                 }
                 let lines2 = [];
-                exec4('export LC_ALL=C; dmidecode \u2013t 4 2>/dev/null | grep "Upgrade: Socket"; unset LC_ALL', function(error22, stdout2) {
+                exec3('export LC_ALL=C; dmidecode \u2013t 4 2>/dev/null | grep "Upgrade: Socket"; unset LC_ALL', function(error22, stdout2) {
                   lines2 = stdout2.toString().split("\n");
                   if (lines2 && lines2.length) {
                     result2.socket = util.getValue(lines2, "Upgrade").replace("Socket", "").trim() || result2.socket;
@@ -81395,7 +81395,7 @@ var require_cpu = __commonJS({
               if (os2.cpus()[0] && os2.cpus()[0].model) {
                 modelline = os2.cpus()[0].model;
               }
-              exec4("export LC_ALL=C; dmidecode -t 4; dmidecode -t 7 unset LC_ALL", function(error2, stdout) {
+              exec3("export LC_ALL=C; dmidecode -t 4; dmidecode -t 7 unset LC_ALL", function(error2, stdout) {
                 let cache2 = [];
                 if (!error2) {
                   const data = stdout.toString().split("# dmidecode");
@@ -81660,7 +81660,7 @@ var require_cpu = __commonJS({
             }
             const cmd = 'for mon in /sys/class/hwmon/hwmon*; do for label in "$mon"/temp*_label; do if [ -f $label ]; then value=${label%_*}_input; echo $(cat "$label")___$(cat "$value"); fi; done; done;';
             try {
-              exec4(cmd, function(error2, stdout) {
+              exec3(cmd, function(error2, stdout) {
                 stdout = stdout.toString();
                 const tdiePos = stdout.toLowerCase().indexOf("tdie");
                 if (tdiePos !== -1) {
@@ -81701,7 +81701,7 @@ var require_cpu = __commonJS({
                   resolve(result2);
                   return;
                 }
-                exec4("sensors", function(error3, stdout2) {
+                exec3("sensors", function(error3, stdout2) {
                   if (!error3) {
                     let lines2 = stdout2.toString().split("\n");
                     let tdieTemp = null;
@@ -81778,7 +81778,7 @@ var require_cpu = __commonJS({
                         resolve(result2);
                       });
                     } else {
-                      exec4("/opt/vc/bin/vcgencmd measure_temp", function(error4, stdout3) {
+                      exec3("/opt/vc/bin/vcgencmd measure_temp", function(error4, stdout3) {
                         if (!error4) {
                           let lines2 = stdout3.toString().split("\n");
                           if (lines2.length > 0 && lines2[0].indexOf("=")) {
@@ -81803,7 +81803,7 @@ var require_cpu = __commonJS({
             }
           }
           if (_freebsd || _openbsd || _netbsd) {
-            exec4("sysctl dev.cpu | grep temp", function(error2, stdout) {
+            exec3("sysctl dev.cpu | grep temp", function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().split("\n");
                 let sum = 0;
@@ -81902,7 +81902,7 @@ var require_cpu = __commonJS({
           let result2 = "";
           if (_windows) {
             try {
-              exec4('reg query "HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0" /v FeatureSet', util.execOptsWin, function(error2, stdout) {
+              exec3('reg query "HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0" /v FeatureSet', util.execOptsWin, function(error2, stdout) {
                 if (!error2) {
                   let flag_hex = stdout.split("0x").pop().trim();
                   let flag_bin_unpadded = parseInt(flag_hex, 16).toString(2);
@@ -81962,7 +81962,7 @@ var require_cpu = __commonJS({
           }
           if (_linux) {
             try {
-              exec4("export LC_ALL=C; lscpu; unset LC_ALL", function(error2, stdout) {
+              exec3("export LC_ALL=C; lscpu; unset LC_ALL", function(error2, stdout) {
                 if (!error2) {
                   let lines = stdout.toString().split("\n");
                   lines.forEach(function(line) {
@@ -81997,7 +81997,7 @@ var require_cpu = __commonJS({
             }
           }
           if (_freebsd || _openbsd || _netbsd) {
-            exec4("export LC_ALL=C; dmidecode -t 4 2>/dev/null; unset LC_ALL", function(error2, stdout) {
+            exec3("export LC_ALL=C; dmidecode -t 4 2>/dev/null; unset LC_ALL", function(error2, stdout) {
               let flags = [];
               if (!error2) {
                 let parts = stdout.toString().split("	Flags:");
@@ -82017,7 +82017,7 @@ var require_cpu = __commonJS({
             });
           }
           if (_darwin) {
-            exec4("sysctl machdep.cpu.features", function(error2, stdout) {
+            exec3("sysctl machdep.cpu.features", function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().split("\n");
                 if (lines.length > 0 && lines[0].indexOf("machdep.cpu.features:") !== -1) {
@@ -82051,7 +82051,7 @@ var require_cpu = __commonJS({
           };
           if (_linux) {
             try {
-              exec4("export LC_ALL=C; lscpu; unset LC_ALL", function(error2, stdout) {
+              exec3("export LC_ALL=C; lscpu; unset LC_ALL", function(error2, stdout) {
                 if (!error2) {
                   let lines = stdout.toString().split("\n");
                   lines.forEach(function(line) {
@@ -82083,7 +82083,7 @@ var require_cpu = __commonJS({
             }
           }
           if (_freebsd || _openbsd || _netbsd) {
-            exec4("export LC_ALL=C; dmidecode -t 7 2>/dev/null; unset LC_ALL", function(error2, stdout) {
+            exec3("export LC_ALL=C; dmidecode -t 7 2>/dev/null; unset LC_ALL", function(error2, stdout) {
               let cache2 = [];
               if (!error2) {
                 const data = stdout.toString();
@@ -82114,7 +82114,7 @@ var require_cpu = __commonJS({
             });
           }
           if (_darwin) {
-            exec4("sysctl hw.l1icachesize hw.l1dcachesize hw.l2cachesize hw.l3cachesize", function(error2, stdout) {
+            exec3("sysctl hw.l1icachesize hw.l1dcachesize hw.l2cachesize hw.l3cachesize", function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().split("\n");
                 lines.forEach(function(line) {
@@ -82473,7 +82473,7 @@ var require_memory = __commonJS({
   "../../node_modules/systeminformation/lib/memory.js"(exports2) {
     "use strict";
     var os2 = require("os");
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var execSync = require("child_process").execSync;
     var util = require_util10();
     var fs2 = require("fs");
@@ -82582,7 +82582,7 @@ var require_memory = __commonJS({
           }
           if (_freebsd || _openbsd || _netbsd) {
             try {
-              exec4("/sbin/sysctl hw.realmem hw.physmem vm.stats.vm.v_page_count vm.stats.vm.v_wire_count vm.stats.vm.v_active_count vm.stats.vm.v_inactive_count vm.stats.vm.v_cache_count vm.stats.vm.v_free_count vm.stats.vm.v_page_size", function(error2, stdout) {
+              exec3("/sbin/sysctl hw.realmem hw.physmem vm.stats.vm.v_page_count vm.stats.vm.v_wire_count vm.stats.vm.v_active_count vm.stats.vm.v_inactive_count vm.stats.vm.v_cache_count vm.stats.vm.v_free_count vm.stats.vm.v_page_size", function(error2, stdout) {
                 if (!error2) {
                   let lines = stdout.toString().split("\n");
                   const pagesize = parseInt(util.getValue(lines, "vm.stats.vm.v_page_size"), 10);
@@ -82627,7 +82627,7 @@ var require_memory = __commonJS({
               util.noop();
             }
             try {
-              exec4('vm_stat 2>/dev/null | egrep "Pages active|Pages inactive"', function(error2, stdout) {
+              exec3('vm_stat 2>/dev/null | egrep "Pages active|Pages inactive"', function(error2, stdout) {
                 if (!error2) {
                   let lines = stdout.toString().split("\n");
                   result2.active = (parseInt(util.getValue(lines, "Pages active"), 10) || 0) * pageSize;
@@ -82635,7 +82635,7 @@ var require_memory = __commonJS({
                   result2.buffcache = result2.used - result2.active;
                   result2.available = result2.free + result2.buffcache;
                 }
-                exec4("sysctl -n vm.swapusage 2>/dev/null", function(error3, stdout2) {
+                exec3("sysctl -n vm.swapusage 2>/dev/null", function(error3, stdout2) {
                   if (!error3) {
                     let lines = stdout2.toString().split("\n");
                     if (lines.length > 0) {
@@ -82713,7 +82713,7 @@ var require_memory = __commonJS({
         process.nextTick(() => {
           let result2 = [];
           if (_linux || _freebsd || _openbsd || _netbsd) {
-            exec4('export LC_ALL=C; dmidecode -t memory 2>/dev/null | grep -iE "Size:|Type|Speed|Manufacturer|Form Factor|Locator|Memory Device|Serial Number|Voltage|Part Number"; unset LC_ALL', function(error2, stdout) {
+            exec3('export LC_ALL=C; dmidecode -t memory 2>/dev/null | grep -iE "Size:|Type|Speed|Manufacturer|Form Factor|Locator|Memory Device|Serial Number|Voltage|Part Number"; unset LC_ALL', function(error2, stdout) {
               if (!error2) {
                 let devices = stdout.toString().split("Memory Device");
                 devices.shift();
@@ -82818,7 +82818,7 @@ var require_memory = __commonJS({
             });
           }
           if (_darwin) {
-            exec4("system_profiler SPMemoryDataType", function(error2, stdout) {
+            exec3("system_profiler SPMemoryDataType", function(error2, stdout) {
               if (!error2) {
                 const allLines = stdout.toString().split("\n");
                 const eccStatus = util.getValue(allLines, "ecc", ":", true).toLowerCase();
@@ -82957,7 +82957,7 @@ var require_memory = __commonJS({
 var require_battery = __commonJS({
   "../../node_modules/systeminformation/lib/battery.js"(exports2, module2) {
     "use strict";
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var fs2 = require("fs");
     var util = require_util10();
     var _platform = process.platform;
@@ -83090,7 +83090,7 @@ var require_battery = __commonJS({
             }
           }
           if (_freebsd || _openbsd || _netbsd) {
-            exec4("sysctl -i hw.acpi.battery hw.acpi.acline", function(error2, stdout) {
+            exec3("sysctl -i hw.acpi.battery hw.acpi.acline", function(error2, stdout) {
               let lines = stdout.toString().split("\n");
               const batteries = parseInt("0" + util.getValue(lines, "hw.acpi.battery.units"), 10);
               const percent = parseInt("0" + util.getValue(lines, "hw.acpi.battery.life"), 10);
@@ -83109,7 +83109,7 @@ var require_battery = __commonJS({
             });
           }
           if (_darwin) {
-            exec4('ioreg -n AppleSmartBattery -r | egrep "CycleCount|IsCharging|DesignCapacity|MaxCapacity|CurrentCapacity|DeviceName|BatterySerialNumber|Serial|TimeRemaining|Voltage"; pmset -g batt | grep %', function(error2, stdout) {
+            exec3('ioreg -n AppleSmartBattery -r | egrep "CycleCount|IsCharging|DesignCapacity|MaxCapacity|CurrentCapacity|DeviceName|BatterySerialNumber|Serial|TimeRemaining|Voltage"; pmset -g batt | grep %', function(error2, stdout) {
               if (stdout) {
                 let lines = stdout.toString().replace(/ +/g, "").replace(/"+/g, "").replace(/-/g, "").split("\n");
                 result2.cycleCount = parseInt("0" + util.getValue(lines, "cyclecount", "="), 10);
@@ -83254,7 +83254,7 @@ var require_graphics = __commonJS({
   "../../node_modules/systeminformation/lib/graphics.js"(exports2) {
     "use strict";
     var fs2 = require("fs");
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var execSync = require("child_process").execSync;
     var util = require_util10();
     var _platform = process.platform;
@@ -83908,7 +83908,7 @@ var require_graphics = __commonJS({
           };
           if (_darwin) {
             let cmd = "system_profiler -xml -detailLevel full SPDisplaysDataType";
-            exec4(cmd, function(error2, stdout) {
+            exec3(cmd, function(error2, stdout) {
               if (!error2) {
                 try {
                   const output = stdout.toString();
@@ -83962,7 +83962,7 @@ var require_graphics = __commonJS({
           if (_linux) {
             if (util.isRaspberry()) {
               let cmd2 = `fbset -s 2> /dev/null | grep 'mode "' ; vcgencmd get_mem gpu 2> /dev/null; tvservice -s 2> /dev/null; tvservice -n 2> /dev/null;`;
-              exec4(cmd2, function(error2, stdout) {
+              exec3(cmd2, function(error2, stdout) {
                 let lines = stdout.toString().split("\n");
                 if (lines.length > 3 && lines[0].indexOf('mode "') >= -1 && lines[2].indexOf("0x12000a") > -1) {
                   const parts = lines[0].replace("mode", "").replace(/"/g, "").trim().split("x");
@@ -83998,7 +83998,7 @@ var require_graphics = __commonJS({
               });
             }
             let cmd = "lspci -vvv  2>/dev/null";
-            exec4(cmd, function(error2, stdout) {
+            exec3(cmd, function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().split("\n");
                 if (result2.controllers.length === 0) {
@@ -84010,20 +84010,20 @@ var require_graphics = __commonJS({
                 }
               }
               let cmd2 = "clinfo --raw";
-              exec4(cmd2, function(error3, stdout2) {
+              exec3(cmd2, function(error3, stdout2) {
                 if (!error3) {
                   let lines = stdout2.toString().split("\n");
                   result2.controllers = parseLinesLinuxClinfo(result2.controllers, lines);
                 }
                 let cmd3 = "xdpyinfo 2>/dev/null | grep 'depth of root window' | awk '{ print $5 }'";
-                exec4(cmd3, function(error4, stdout3) {
+                exec3(cmd3, function(error4, stdout3) {
                   let depth = 0;
                   if (!error4) {
                     let lines = stdout3.toString().split("\n");
                     depth = parseInt(lines[0]) || 0;
                   }
                   let cmd4 = "xrandr --verbose 2>/dev/null";
-                  exec4(cmd4, function(error5, stdout4) {
+                  exec3(cmd4, function(error5, stdout4) {
                     if (!error5) {
                       let lines = stdout4.toString().split("\n");
                       result2.displays = parseLinesLinuxDisplays(lines, depth);
@@ -84325,7 +84325,7 @@ var require_filesystem = __commonJS({
     "use strict";
     var util = require_util10();
     var fs2 = require("fs");
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var execSync = require("child_process").execSync;
     var execPromiseSave = util.promisifySave(require("child_process").exec);
     var _platform = process.platform;
@@ -84462,7 +84462,7 @@ var require_filesystem = __commonJS({
                 util.noop();
               }
             }
-            exec4(cmd, { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
+            exec3(cmd, { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
               let lines = filterLines(stdout);
               data = parseDf(lines);
               if (drive) {
@@ -84476,7 +84476,7 @@ var require_filesystem = __commonJS({
                 }
                 resolve(data);
               } else {
-                exec4("df -kPT", { maxBuffer: 1024 * 1024 }, function(error3, stdout2) {
+                exec3("df -kPT", { maxBuffer: 1024 * 1024 }, function(error3, stdout2) {
                   if (!error3) {
                     let lines2 = filterLines(stdout2);
                     data = parseDf(lines2);
@@ -84548,7 +84548,7 @@ var require_filesystem = __commonJS({
           };
           if (_freebsd || _openbsd || _netbsd || _darwin) {
             let cmd = "sysctl -i kern.maxfiles kern.num_files kern.open_files";
-            exec4(cmd, { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
+            exec3(cmd, { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().split("\n");
                 result2.max = parseInt(util.getValue(lines, "kern.maxfiles", ":"), 10);
@@ -84870,7 +84870,7 @@ var require_filesystem = __commonJS({
         process.nextTick(() => {
           let data = [];
           if (_linux) {
-            const procLsblk1 = exec4("lsblk -bPo NAME,TYPE,SIZE,FSTYPE,MOUNTPOINT,UUID,ROTA,RO,RM,TRAN,SERIAL,LABEL,MODEL,OWNER 2>/dev/null", { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
+            const procLsblk1 = exec3("lsblk -bPo NAME,TYPE,SIZE,FSTYPE,MOUNTPOINT,UUID,ROTA,RO,RM,TRAN,SERIAL,LABEL,MODEL,OWNER 2>/dev/null", { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
               if (!error2) {
                 let lines = blkStdoutToObject(stdout).split("\n");
                 data = parseBlk(lines);
@@ -84881,7 +84881,7 @@ var require_filesystem = __commonJS({
                 }
                 resolve(data);
               } else {
-                const procLsblk2 = exec4("lsblk -bPo NAME,TYPE,SIZE,FSTYPE,MOUNTPOINT,UUID,ROTA,RO,RM,LABEL,MODEL,OWNER 2>/dev/null", { maxBuffer: 1024 * 1024 }, function(error3, stdout2) {
+                const procLsblk2 = exec3("lsblk -bPo NAME,TYPE,SIZE,FSTYPE,MOUNTPOINT,UUID,ROTA,RO,RM,LABEL,MODEL,OWNER 2>/dev/null", { maxBuffer: 1024 * 1024 }, function(error3, stdout2) {
                   if (!error3) {
                     let lines = blkStdoutToObject(stdout2).split("\n");
                     data = parseBlk(lines);
@@ -84908,7 +84908,7 @@ var require_filesystem = __commonJS({
             });
           }
           if (_darwin) {
-            const procDskutil = exec4("diskutil info -all", { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
+            const procDskutil = exec3("diskutil info -all", { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().split("\n");
                 data = parseDevices(lines);
@@ -85049,7 +85049,7 @@ var require_filesystem = __commonJS({
           let wx = 0;
           if (_fs_speed && !_fs_speed.ms || _fs_speed && _fs_speed.ms && Date.now() - _fs_speed.ms >= 500) {
             if (_linux) {
-              const procLsblk = exec4("lsblk -r 2>/dev/null | grep /", { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
+              const procLsblk = exec3("lsblk -r 2>/dev/null | grep /", { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
                 if (!error2) {
                   let lines = stdout.toString().split("\n");
                   let fs_filter = [];
@@ -85062,7 +85062,7 @@ var require_filesystem = __commonJS({
                     }
                   });
                   let output = fs_filter.join("|");
-                  const procCat = exec4('cat /proc/diskstats | egrep "' + output + '"', { maxBuffer: 1024 * 1024 }, function(error3, stdout2) {
+                  const procCat = exec3('cat /proc/diskstats | egrep "' + output + '"', { maxBuffer: 1024 * 1024 }, function(error3, stdout2) {
                     if (!error3) {
                       let lines2 = stdout2.toString().split("\n");
                       lines2.forEach(function(line) {
@@ -85101,7 +85101,7 @@ var require_filesystem = __commonJS({
               });
             }
             if (_darwin) {
-              const procIoreg = exec4('ioreg -c IOBlockStorageDriver -k Statistics -r -w0 | sed -n "/IOBlockStorageDriver/,/Statistics/p" | grep "Statistics" | tr -cd "01234567890,\n"', { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
+              const procIoreg = exec3('ioreg -c IOBlockStorageDriver -k Statistics -r -w0 | sed -n "/IOBlockStorageDriver/,/Statistics/p" | grep "Statistics" | tr -cd "01234567890,\n"', { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
                 if (!error2) {
                   let lines = stdout.toString().split("\n");
                   lines.forEach(function(line) {
@@ -85241,7 +85241,7 @@ var require_filesystem = __commonJS({
           if (_disk_io && !_disk_io.ms || _disk_io && _disk_io.ms && Date.now() - _disk_io.ms >= 500) {
             if (_linux || _freebsd || _openbsd || _netbsd) {
               let cmd = 'for mount in `lsblk 2>/dev/null | grep " disk " | sed "s/[\u2502\u2514\u2500\u251C]//g" | awk \'{$1=$1};1\' | cut -d " " -f 1 | sort -u`; do cat /sys/block/$mount/stat | sed -r "s/ +/;/g" | sed -r "s/^;//"; done';
-              exec4(cmd, { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
+              exec3(cmd, { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
                 if (!error2) {
                   let lines = stdout.split("\n");
                   lines.forEach(function(line) {
@@ -85269,7 +85269,7 @@ var require_filesystem = __commonJS({
               });
             }
             if (_darwin) {
-              exec4('ioreg -c IOBlockStorageDriver -k Statistics -r -w0 | sed -n "/IOBlockStorageDriver/,/Statistics/p" | grep "Statistics" | tr -cd "01234567890,\n"', { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
+              exec3('ioreg -c IOBlockStorageDriver -k Statistics -r -w0 | sed -n "/IOBlockStorageDriver/,/Statistics/p" | grep "Statistics" | tr -cd "01234567890,\n"', { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
                 if (!error2) {
                   let lines = stdout.toString().split("\n");
                   lines.forEach(function(line) {
@@ -85373,7 +85373,7 @@ var require_filesystem = __commonJS({
           let cmd = "";
           if (_linux) {
             let cmdFullSmart = "";
-            exec4("export LC_ALL=C; lsblk -ablJO 2>/dev/null; unset LC_ALL", { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
+            exec3("export LC_ALL=C; lsblk -ablJO 2>/dev/null; unset LC_ALL", { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
               if (!error2) {
                 try {
                   const out = stdout.toString().trim();
@@ -85440,7 +85440,7 @@ ${BSDName}|"; smartctl -H ${BSDName} | grep overall;`;
                 }
               }
               if (cmdFullSmart) {
-                exec4(cmdFullSmart, { maxBuffer: 1024 * 1024 }, function(error3, stdout2) {
+                exec3(cmdFullSmart, { maxBuffer: 1024 * 1024 }, function(error3, stdout2) {
                   try {
                     const data = JSON.parse(`[${stdout2}]`);
                     data.forEach((disk) => {
@@ -85459,7 +85459,7 @@ ${BSDName}|"; smartctl -H ${BSDName} | grep overall;`;
                   } catch (e) {
                     if (cmd) {
                       cmd = cmd + 'printf "\n"';
-                      exec4(cmd, { maxBuffer: 1024 * 1024 }, function(error4, stdout3) {
+                      exec3(cmd, { maxBuffer: 1024 * 1024 }, function(error4, stdout3) {
                         let lines = stdout3.toString().split("\n");
                         lines.forEach((line) => {
                           if (line) {
@@ -85505,7 +85505,7 @@ ${BSDName}|"; smartctl -H ${BSDName} | grep overall;`;
             resolve(result2);
           }
           if (_darwin) {
-            exec4("system_profiler SPSerialATADataType SPNVMeDataType SPUSBDataType", { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
+            exec3("system_profiler SPSerialATADataType SPNVMeDataType SPUSBDataType", { maxBuffer: 1024 * 1024 }, function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().split("\n");
                 let linesSATA = [];
@@ -85665,7 +85665,7 @@ ${BSDName}|"; smartctl -H ${BSDName} | grep overall;`;
                 }
                 if (cmd) {
                   cmd = cmd + 'printf "\n"';
-                  exec4(cmd, { maxBuffer: 1024 * 1024 }, function(error3, stdout2) {
+                  exec3(cmd, { maxBuffer: 1024 * 1024 }, function(error3, stdout2) {
                     let lines2 = stdout2.toString().split("\n");
                     lines2.forEach((line) => {
                       if (line) {
@@ -85823,7 +85823,7 @@ var require_network = __commonJS({
   "../../node_modules/systeminformation/lib/network.js"(exports2) {
     "use strict";
     var os2 = require("os");
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var execSync = require("child_process").execSync;
     var fs2 = require("fs");
     var util = require_util10();
@@ -87006,7 +87006,7 @@ var require_network = __commonJS({
             if (_linux) {
               if (fs2.existsSync("/sys/class/net/" + ifaceSanitized)) {
                 cmd = "cat /sys/class/net/" + ifaceSanitized + "/operstate; cat /sys/class/net/" + ifaceSanitized + "/statistics/rx_bytes; cat /sys/class/net/" + ifaceSanitized + "/statistics/tx_bytes; cat /sys/class/net/" + ifaceSanitized + "/statistics/rx_dropped; cat /sys/class/net/" + ifaceSanitized + "/statistics/rx_errors; cat /sys/class/net/" + ifaceSanitized + "/statistics/tx_dropped; cat /sys/class/net/" + ifaceSanitized + "/statistics/tx_errors; ";
-                exec4(cmd, function(error2, stdout) {
+                exec3(cmd, function(error2, stdout) {
                   if (!error2) {
                     lines = stdout.toString().split("\n");
                     operstate = lines[0].trim();
@@ -87026,7 +87026,7 @@ var require_network = __commonJS({
             }
             if (_freebsd || _openbsd || _netbsd) {
               cmd = "netstat -ibndI " + ifaceSanitized;
-              exec4(cmd, function(error2, stdout) {
+              exec3(cmd, function(error2, stdout) {
                 if (!error2) {
                   lines = stdout.toString().split("\n");
                   for (let i = 1; i < lines.length; i++) {
@@ -87056,12 +87056,12 @@ var require_network = __commonJS({
             }
             if (_darwin) {
               cmd = "ifconfig " + ifaceSanitized + ' | grep "status"';
-              exec4(cmd, function(error2, stdout) {
+              exec3(cmd, function(error2, stdout) {
                 result2.operstate = (stdout.toString().split(":")[1] || "").trim();
                 result2.operstate = (result2.operstate || "").toLowerCase();
                 result2.operstate = result2.operstate === "active" ? "up" : result2.operstate === "inactive" ? "down" : "unknown";
                 cmd = "netstat -bdI " + ifaceSanitized;
-                exec4(cmd, function(error3, stdout2) {
+                exec3(cmd, function(error3, stdout2) {
                   if (!error3) {
                     lines = stdout2.toString().split("\n");
                     if (lines.length > 1 && lines[1].trim() !== "") {
@@ -87148,7 +87148,7 @@ var require_network = __commonJS({
             if (_freebsd || _openbsd || _netbsd) {
               cmd = 'export LC_ALL=C; netstat -na | grep "ESTABLISHED\\|SYN_SENT\\|SYN_RECV\\|FIN_WAIT1\\|FIN_WAIT2\\|TIME_WAIT\\|CLOSE\\|CLOSE_WAIT\\|LAST_ACK\\|LISTEN\\|CLOSING\\|UNKNOWN"; unset LC_ALL';
             }
-            exec4(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout) {
+            exec3(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout) {
               let lines = stdout.toString().split("\n");
               if (!error2 && (lines.length > 1 || lines[0] != "")) {
                 lines.forEach(function(line) {
@@ -87192,7 +87192,7 @@ var require_network = __commonJS({
                 resolve(result2);
               } else {
                 cmd = 'ss -tunap | grep "ESTAB\\|SYN-SENT\\|SYN-RECV\\|FIN-WAIT1\\|FIN-WAIT2\\|TIME-WAIT\\|CLOSE\\|CLOSE-WAIT\\|LAST-ACK\\|LISTEN\\|CLOSING"';
-                exec4(cmd, { maxBuffer: 1024 * 2e4 }, function(error3, stdout2) {
+                exec3(cmd, { maxBuffer: 1024 * 2e4 }, function(error3, stdout2) {
                   if (!error3) {
                     let lines2 = stdout2.toString().split("\n");
                     lines2.forEach(function(line) {
@@ -87256,9 +87256,9 @@ var require_network = __commonJS({
           if (_darwin) {
             let cmd = 'netstat -natvln | head -n2; netstat -natvln | grep "tcp4\\|tcp6\\|udp4\\|udp6"';
             const states = "ESTABLISHED|SYN_SENT|SYN_RECV|FIN_WAIT1|FIN_WAIT_1|FIN_WAIT2|FIN_WAIT_2|TIME_WAIT|CLOSE|CLOSE_WAIT|LAST_ACK|LISTEN|CLOSING|UNKNOWN".split("|");
-            exec4(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout) {
+            exec3(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout) {
               if (!error2) {
-                exec4("ps -axo pid,command", { maxBuffer: 1024 * 2e4 }, function(err2, stdout2) {
+                exec3("ps -axo pid,command", { maxBuffer: 1024 * 2e4 }, function(err2, stdout2) {
                   let processes = stdout2.toString().split("\n");
                   processes = processes.map(((line) => {
                     return line.trim().replace(/ +/g, " ");
@@ -87317,7 +87317,7 @@ var require_network = __commonJS({
           if (_windows) {
             let cmd = "netstat -nao";
             try {
-              exec4(cmd, util.execOptsWin, function(error2, stdout) {
+              exec3(cmd, util.execOptsWin, function(error2, stdout) {
                 if (!error2) {
                   let lines = stdout.toString().split("\r\n");
                   lines.forEach(function(line) {
@@ -87419,7 +87419,7 @@ var require_network = __commonJS({
           if (_linux || _freebsd || _openbsd || _netbsd) {
             let cmd = "ip route get 1";
             try {
-              exec4(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout) {
+              exec3(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout) {
                 if (!error2) {
                   let lines = stdout.toString().split("\n");
                   const line = lines && lines[0] ? lines[0] : "";
@@ -87449,14 +87449,14 @@ var require_network = __commonJS({
           if (_darwin) {
             let cmd = "route -n get default";
             try {
-              exec4(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout) {
+              exec3(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout) {
                 if (!error2) {
                   const lines = stdout.toString().split("\n").map((line) => line.trim());
                   result2 = util.getValue(lines, "gateway");
                 }
                 if (!result2) {
                   cmd = "netstat -rn | awk '/default/ {print $2}'";
-                  exec4(cmd, { maxBuffer: 1024 * 2e4 }, function(error3, stdout2) {
+                  exec3(cmd, { maxBuffer: 1024 * 2e4 }, function(error3, stdout2) {
                     const lines = stdout2.toString().split("\n").map((line) => line.trim());
                     result2 = lines.find((line) => /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(line));
                     if (callback) {
@@ -87480,7 +87480,7 @@ var require_network = __commonJS({
           }
           if (_windows) {
             try {
-              exec4("netstat -r", util.execOptsWin, function(error2, stdout) {
+              exec3("netstat -r", util.execOptsWin, function(error2, stdout) {
                 const lines = stdout.toString().split(os2.EOL);
                 lines.forEach((line) => {
                   line = line.replace(/\s+/g, " ").trim();
@@ -87528,7 +87528,7 @@ var require_wifi = __commonJS({
   "../../node_modules/systeminformation/lib/wifi.js"(exports2) {
     "use strict";
     var os2 = require("os");
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var execSync = require("child_process").execSync;
     var util = require_util10();
     var _platform = process.platform;
@@ -87963,7 +87963,7 @@ var require_wifi = __commonJS({
             }
           } else if (_darwin) {
             let cmd = "system_profiler SPAirPortDataType -json 2>/dev/null";
-            exec4(cmd, { maxBuffer: 1024 * 4e4 }, function(error2, stdout) {
+            exec3(cmd, { maxBuffer: 1024 * 4e4 }, function(error2, stdout) {
               result2 = parseWifiDarwin(stdout.toString());
               if (callback) {
                 callback(result2);
@@ -88104,7 +88104,7 @@ var require_wifi = __commonJS({
             resolve(result2);
           } else if (_darwin) {
             let cmd = 'system_profiler SPNetworkDataType SPAirPortDataType -xml 2>/dev/null; echo "######" ; ioreg -n AppleBCMWLANSkywalkInterface -r 2>/dev/null';
-            exec4(cmd, function(error2, stdout) {
+            exec3(cmd, function(error2, stdout) {
               try {
                 const parts = stdout.toString().split("######");
                 const profilerObj = util.plistParser(parts[0]);
@@ -88233,7 +88233,7 @@ var require_wifi = __commonJS({
             resolve(result2);
           } else if (_darwin) {
             let cmd = "system_profiler SPNetworkDataType";
-            exec4(cmd, function(error2, stdout) {
+            exec3(cmd, function(error2, stdout) {
               const parts1 = stdout.toString().split("\n\n    Wi-Fi:\n\n");
               if (parts1.length > 1) {
                 const lines = parts1[1].split("\n\n")[0].split("\n");
@@ -88308,7 +88308,7 @@ var require_processes = __commonJS({
     var os2 = require("os");
     var fs2 = require("fs");
     var path4 = require("path");
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var execSync = require("child_process").execSync;
     var util = require_util10();
     var _platform = process.platform;
@@ -88520,7 +88520,7 @@ var require_processes = __commonJS({
                           cmd += ";cat /proc/" + result2[i].pids[j] + "/stat";
                         }
                       }
-                      exec4(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout2) {
+                      exec3(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout2) {
                         let curr_processes = stdout2.toString().split("\n");
                         let all = parseProcStat(curr_processes.shift());
                         let list_new = {};
@@ -89003,7 +89003,7 @@ var require_processes = __commonJS({
               if (_sunos) {
                 cmd = "ps -Ao pid,ppid,pcpu,pmem,pri,vsz,rss,nice,stime,s,tty,user,comm";
               }
-              exec4(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout) {
+              exec3(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout) {
                 if (!error2 && stdout.toString().trim()) {
                   result2.list = parseProcesses(stdout.toString().split("\n")).slice();
                   result2.all = result2.list.length;
@@ -89021,7 +89021,7 @@ var require_processes = __commonJS({
                     result2.list.forEach((element) => {
                       cmd += ";cat /proc/" + element.pid + "/stat";
                     });
-                    exec4(cmd, { maxBuffer: 1024 * 2e4 }, function(error3, stdout2) {
+                    exec3(cmd, { maxBuffer: 1024 * 2e4 }, function(error3, stdout2) {
                       let curr_processes = stdout2.toString().split("\n");
                       let all = parseProcStat(curr_processes.shift());
                       let list_new = {};
@@ -89067,7 +89067,7 @@ var require_processes = __commonJS({
                   if (_sunos) {
                     cmd = "ps -o pid,ppid,vsz,rss,nice,etime,s,tty,user,comm";
                   }
-                  exec4(cmd, { maxBuffer: 1024 * 2e4 }, function(error3, stdout2) {
+                  exec3(cmd, { maxBuffer: 1024 * 2e4 }, function(error3, stdout2) {
                     if (!error3) {
                       let lines = stdout2.toString().split("\n");
                       lines.shift();
@@ -89473,7 +89473,7 @@ var require_processes = __commonJS({
                         cmd += ";cat /proc/" + result2[i].pids[j] + "/stat";
                       }
                     }
-                    exec4(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout2) {
+                    exec3(cmd, { maxBuffer: 1024 * 2e4 }, function(error2, stdout2) {
                       let curr_processes = stdout2.toString().split("\n");
                       let all = parseProcStat(curr_processes.shift());
                       let list_new = {};
@@ -89538,7 +89538,7 @@ var require_processes = __commonJS({
 var require_users = __commonJS({
   "../../node_modules/systeminformation/lib/users.js"(exports2) {
     "use strict";
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var util = require_util10();
     var _platform = process.platform;
     var _linux = _platform === "linux" || _platform === "android";
@@ -89659,12 +89659,12 @@ var require_users = __commonJS({
         process.nextTick(() => {
           let result2 = [];
           if (_linux) {
-            exec4('export LC_ALL=C; who --ips; echo "---"; w; unset LC_ALL | tail -n +2', function(error2, stdout) {
+            exec3('export LC_ALL=C; who --ips; echo "---"; w; unset LC_ALL | tail -n +2', function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().split("\n");
                 result2 = parseUsersLinux(lines, 1);
                 if (result2.length === 0) {
-                  exec4('who; echo "---"; w | tail -n +2', function(error3, stdout2) {
+                  exec3('who; echo "---"; w | tail -n +2', function(error3, stdout2) {
                     if (!error3) {
                       lines = stdout2.toString().split("\n");
                       result2 = parseUsersLinux(lines, 2);
@@ -89689,7 +89689,7 @@ var require_users = __commonJS({
             });
           }
           if (_freebsd || _openbsd || _netbsd) {
-            exec4('who; echo "---"; w -ih', function(error2, stdout) {
+            exec3('who; echo "---"; w -ih', function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().split("\n");
                 result2 = parseUsersDarwin(lines);
@@ -89701,7 +89701,7 @@ var require_users = __commonJS({
             });
           }
           if (_sunos) {
-            exec4('who; echo "---"; w -h', function(error2, stdout) {
+            exec3('who; echo "---"; w -h', function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().split("\n");
                 result2 = parseUsersDarwin(lines);
@@ -89713,7 +89713,7 @@ var require_users = __commonJS({
             });
           }
           if (_darwin) {
-            exec4('export LC_ALL=C; who; echo "---"; w -ih; unset LC_ALL', function(error2, stdout) {
+            exec3('export LC_ALL=C; who; echo "---"; w -ih; unset LC_ALL', function(error2, stdout) {
               if (!error2) {
                 let lines = stdout.toString().split("\n");
                 result2 = parseUsersDarwin(lines);
@@ -91056,14 +91056,14 @@ var require_virtualbox = __commonJS({
   "../../node_modules/systeminformation/lib/virtualbox.js"(exports2) {
     "use strict";
     var os2 = require("os");
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var util = require_util10();
     function vboxInfo(callback) {
       let result2 = [];
       return new Promise((resolve) => {
         process.nextTick(() => {
           try {
-            exec4(util.getVboxmanage() + " list vms --long", function(error2, stdout) {
+            exec3(util.getVboxmanage() + " list vms --long", function(error2, stdout) {
               let parts = (os2.EOL + stdout.toString()).split(os2.EOL + "Name:");
               parts.shift();
               parts.forEach((part) => {
@@ -91153,7 +91153,7 @@ var require_virtualbox = __commonJS({
 var require_printer = __commonJS({
   "../../node_modules/systeminformation/lib/printer.js"(exports2) {
     "use strict";
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var util = require_util10();
     var _platform = process.platform;
     var _linux = _platform === "linux" || _platform === "android";
@@ -91243,7 +91243,7 @@ var require_printer = __commonJS({
           let result2 = [];
           if (_linux || _freebsd || _openbsd || _netbsd) {
             let cmd = "cat /etc/cups/printers.conf 2>/dev/null";
-            exec4(cmd, function(error2, stdout) {
+            exec3(cmd, function(error2, stdout) {
               if (!error2) {
                 const parts = stdout.toString().split("<Printer ");
                 const printerHeader = parseLinuxCupsHeader(parts[0]);
@@ -91259,7 +91259,7 @@ var require_printer = __commonJS({
               if (result2.length === 0) {
                 if (_linux) {
                   cmd = "export LC_ALL=C; lpstat -lp 2>/dev/null; unset LC_ALL";
-                  exec4(cmd, function(error3, stdout2) {
+                  exec3(cmd, function(error3, stdout2) {
                     const parts = ("\n" + stdout2.toString()).split("\nprinter ");
                     for (let i = 1; i < parts.length; i++) {
                       const printers = parseLinuxLpstatPrinter(parts[i].split("\n"), i);
@@ -91286,7 +91286,7 @@ var require_printer = __commonJS({
           }
           if (_darwin) {
             let cmd = "system_profiler SPPrintersDataType -json";
-            exec4(cmd, function(error2, stdout) {
+            exec3(cmd, function(error2, stdout) {
               if (!error2) {
                 try {
                   const outObj = JSON.parse(stdout.toString());
@@ -91337,7 +91337,7 @@ var require_printer = __commonJS({
 var require_usb = __commonJS({
   "../../node_modules/systeminformation/lib/usb.js"(exports2) {
     "use strict";
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var util = require_util10();
     var _platform = process.platform;
     var _linux = _platform === "linux" || _platform === "android";
@@ -91547,7 +91547,7 @@ var require_usb = __commonJS({
           let result2 = [];
           if (_linux) {
             const cmd = "export LC_ALL=C; lsusb -v 2>/dev/null; unset LC_ALL";
-            exec4(cmd, { maxBuffer: 1024 * 1024 * 128 }, function(error2, stdout) {
+            exec3(cmd, { maxBuffer: 1024 * 1024 * 128 }, function(error2, stdout) {
               if (!error2) {
                 const parts = ("\n\n" + stdout.toString()).split("\n\nBus ");
                 for (let i = 1; i < parts.length; i++) {
@@ -91563,7 +91563,7 @@ var require_usb = __commonJS({
           }
           if (_darwin) {
             let cmd = "ioreg -p IOUSB -c AppleUSBRootHubDevice -w0 -l";
-            exec4(cmd, { maxBuffer: 1024 * 1024 * 128 }, function(error2, stdout) {
+            exec3(cmd, { maxBuffer: 1024 * 1024 * 128 }, function(error2, stdout) {
               if (!error2) {
                 const parts = stdout.toString().split(" +-o ");
                 for (let i = 1; i < parts.length; i++) {
@@ -91614,7 +91614,7 @@ var require_usb = __commonJS({
 var require_audio = __commonJS({
   "../../node_modules/systeminformation/lib/audio.js"(exports2) {
     "use strict";
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var execSync = require("child_process").execSync;
     var util = require_util10();
     var _platform = process.platform;
@@ -91775,7 +91775,7 @@ var require_audio = __commonJS({
           let result2 = [];
           if (_linux || _freebsd || _openbsd || _netbsd) {
             let cmd = "lspci -vmm 2>/dev/null";
-            exec4(cmd, function(error2, stdout) {
+            exec3(cmd, function(error2, stdout) {
               if (!error2) {
                 const audioPCI = getLinuxAudioPci();
                 const parts = stdout.toString().split("\n\n");
@@ -91795,7 +91795,7 @@ var require_audio = __commonJS({
           }
           if (_darwin) {
             let cmd = "system_profiler SPAudioDataType -json";
-            exec4(cmd, function(error2, stdout) {
+            exec3(cmd, function(error2, stdout) {
               if (!error2) {
                 try {
                   const outObj = JSON.parse(stdout.toString());
@@ -92989,7 +92989,7 @@ var require_bluetoothVendors = __commonJS({
 var require_bluetooth = __commonJS({
   "../../node_modules/systeminformation/lib/bluetooth.js"(exports2) {
     "use strict";
-    var exec4 = require("child_process").exec;
+    var exec3 = require("child_process").exec;
     var execSync = require("child_process").execSync;
     var path4 = require("path");
     var util = require_util10();
@@ -93140,7 +93140,7 @@ var require_bluetooth = __commonJS({
           }
           if (_darwin) {
             let cmd = "system_profiler SPBluetoothDataType -json";
-            exec4(cmd, function(error2, stdout) {
+            exec3(cmd, function(error2, stdout) {
               if (!error2) {
                 try {
                   const outObj = JSON.parse(stdout.toString());
@@ -98903,15 +98903,15 @@ var require_cst_scalar = __commonJS({
       }
       return null;
     }
-    function createScalarToken(value, context3) {
-      const { implicitKey = false, indent, inFlow = false, offset = -1, type = "PLAIN" } = context3;
+    function createScalarToken(value, context2) {
+      const { implicitKey = false, indent, inFlow = false, offset = -1, type = "PLAIN" } = context2;
       const source = stringifyString.stringifyString({ type, value }, {
         implicitKey,
         indent: indent > 0 ? " ".repeat(indent) : "",
         inFlow,
         options: { blockQuote: true, lineWidth: -1 }
       });
-      const end = context3.end ?? [
+      const end = context2.end ?? [
         { type: "newline", offset: -1, indent, source: "\n" }
       ];
       switch (source[0]) {
@@ -98935,8 +98935,8 @@ var require_cst_scalar = __commonJS({
           return { type: "scalar", offset, indent, source, end };
       }
     }
-    function setScalarValue(token, value, context3 = {}) {
-      let { afterKey = false, implicitKey = false, inFlow = false, type } = context3;
+    function setScalarValue(token, value, context2 = {}) {
+      let { afterKey = false, implicitKey = false, inFlow = false, type } = context2;
       let indent = "indent" in token ? token.indent : null;
       if (afterKey && typeof indent === "number")
         indent += 2;
@@ -103388,7 +103388,7 @@ var require_retry_helper = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.RetryHelper = void 0;
-    var core6 = __importStar2(require_core());
+    var core5 = __importStar2(require_core());
     var RetryHelper = class {
       constructor(maxAttempts, minSeconds, maxSeconds) {
         if (maxAttempts < 1) {
@@ -103411,10 +103411,10 @@ var require_retry_helper = __commonJS({
               if (isRetryable && !isRetryable(err)) {
                 throw err;
               }
-              core6.info(err.message);
+              core5.info(err.message);
             }
             const seconds = this.getSleepAmount();
-            core6.info(`Waiting ${seconds} seconds before trying again`);
+            core5.info(`Waiting ${seconds} seconds before trying again`);
             yield this.sleep(seconds);
             attempt++;
           }
@@ -103494,7 +103494,7 @@ var require_tool_cache = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.evaluateVersions = exports2.isExplicitVersion = exports2.findFromManifest = exports2.getManifestFromRepo = exports2.findAllVersions = exports2.find = exports2.cacheFile = exports2.cacheDir = exports2.extractZip = exports2.extractXar = exports2.extractTar = exports2.extract7z = exports2.downloadTool = exports2.HTTPError = void 0;
-    var core6 = __importStar2(require_core());
+    var core5 = __importStar2(require_core());
     var io = __importStar2(require_io3());
     var crypto3 = __importStar2(require("crypto"));
     var fs2 = __importStar2(require("fs"));
@@ -103523,8 +103523,8 @@ var require_tool_cache = __commonJS({
       return __awaiter2(this, void 0, void 0, function* () {
         dest = dest || path4.join(_getTempDirectory(), crypto3.randomUUID());
         yield io.mkdirP(path4.dirname(dest));
-        core6.debug(`Downloading ${url}`);
-        core6.debug(`Destination ${dest}`);
+        core5.debug(`Downloading ${url}`);
+        core5.debug(`Destination ${dest}`);
         const maxAttempts = 3;
         const minSeconds = _getGlobal("TEST_DOWNLOAD_TOOL_RETRY_MIN_SECONDS", 10);
         const maxSeconds = _getGlobal("TEST_DOWNLOAD_TOOL_RETRY_MAX_SECONDS", 20);
@@ -103551,7 +103551,7 @@ var require_tool_cache = __commonJS({
           allowRetries: false
         });
         if (auth) {
-          core6.debug("set auth");
+          core5.debug("set auth");
           if (headers === void 0) {
             headers = {};
           }
@@ -103560,7 +103560,7 @@ var require_tool_cache = __commonJS({
         const response = yield http.get(url, headers);
         if (response.message.statusCode !== 200) {
           const err = new HTTPError(response.message.statusCode);
-          core6.debug(`Failed to download from "${url}". Code(${response.message.statusCode}) Message(${response.message.statusMessage})`);
+          core5.debug(`Failed to download from "${url}". Code(${response.message.statusCode}) Message(${response.message.statusMessage})`);
           throw err;
         }
         const pipeline = util.promisify(stream.pipeline);
@@ -103569,16 +103569,16 @@ var require_tool_cache = __commonJS({
         let succeeded = false;
         try {
           yield pipeline(readStream, fs2.createWriteStream(dest));
-          core6.debug("download complete");
+          core5.debug("download complete");
           succeeded = true;
           return dest;
         } finally {
           if (!succeeded) {
-            core6.debug("download failed");
+            core5.debug("download failed");
             try {
               yield io.rmRF(dest);
             } catch (err) {
-              core6.debug(`Failed to delete '${dest}'. ${err.message}`);
+              core5.debug(`Failed to delete '${dest}'. ${err.message}`);
             }
           }
         }
@@ -103593,7 +103593,7 @@ var require_tool_cache = __commonJS({
         process.chdir(dest);
         if (_7zPath) {
           try {
-            const logLevel = core6.isDebug() ? "-bb1" : "-bb0";
+            const logLevel = core5.isDebug() ? "-bb1" : "-bb0";
             const args = [
               "x",
               logLevel,
@@ -103643,7 +103643,7 @@ var require_tool_cache = __commonJS({
           throw new Error("parameter 'file' is required");
         }
         dest = yield _createExtractFolder(dest);
-        core6.debug("Checking tar --version");
+        core5.debug("Checking tar --version");
         let versionOutput = "";
         yield (0, exec_1.exec)("tar --version", [], {
           ignoreReturnCode: true,
@@ -103653,7 +103653,7 @@ var require_tool_cache = __commonJS({
             stderr: (data) => versionOutput += data.toString()
           }
         });
-        core6.debug(versionOutput.trim());
+        core5.debug(versionOutput.trim());
         const isGnuTar = versionOutput.toUpperCase().includes("GNU TAR");
         let args;
         if (flags instanceof Array) {
@@ -103661,7 +103661,7 @@ var require_tool_cache = __commonJS({
         } else {
           args = [flags];
         }
-        if (core6.isDebug() && !flags.includes("v")) {
+        if (core5.isDebug() && !flags.includes("v")) {
           args.push("-v");
         }
         let destArg = dest;
@@ -103693,7 +103693,7 @@ var require_tool_cache = __commonJS({
           args = [flags];
         }
         args.push("-x", "-C", dest, "-f", file);
-        if (core6.isDebug()) {
+        if (core5.isDebug()) {
           args.push("-v");
         }
         const xarPath = yield io.which("xar", true);
@@ -103738,7 +103738,7 @@ var require_tool_cache = __commonJS({
             "-Command",
             pwshCommand
           ];
-          core6.debug(`Using pwsh at path: ${pwshPath}`);
+          core5.debug(`Using pwsh at path: ${pwshPath}`);
           yield (0, exec_1.exec)(`"${pwshPath}"`, args);
         } else {
           const powershellCommand = [
@@ -103758,7 +103758,7 @@ var require_tool_cache = __commonJS({
             powershellCommand
           ];
           const powershellPath = yield io.which("powershell", true);
-          core6.debug(`Using powershell at path: ${powershellPath}`);
+          core5.debug(`Using powershell at path: ${powershellPath}`);
           yield (0, exec_1.exec)(`"${powershellPath}"`, args);
         }
       });
@@ -103767,7 +103767,7 @@ var require_tool_cache = __commonJS({
       return __awaiter2(this, void 0, void 0, function* () {
         const unzipPath = yield io.which("unzip", true);
         const args = [file];
-        if (!core6.isDebug()) {
+        if (!core5.isDebug()) {
           args.unshift("-q");
         }
         args.unshift("-o");
@@ -103778,8 +103778,8 @@ var require_tool_cache = __commonJS({
       return __awaiter2(this, void 0, void 0, function* () {
         version = semver3.clean(version) || version;
         arch2 = arch2 || os2.arch();
-        core6.debug(`Caching tool ${tool} ${version} ${arch2}`);
-        core6.debug(`source dir: ${sourceDir}`);
+        core5.debug(`Caching tool ${tool} ${version} ${arch2}`);
+        core5.debug(`source dir: ${sourceDir}`);
         if (!fs2.statSync(sourceDir).isDirectory()) {
           throw new Error("sourceDir is not a directory");
         }
@@ -103797,14 +103797,14 @@ var require_tool_cache = __commonJS({
       return __awaiter2(this, void 0, void 0, function* () {
         version = semver3.clean(version) || version;
         arch2 = arch2 || os2.arch();
-        core6.debug(`Caching tool ${tool} ${version} ${arch2}`);
-        core6.debug(`source file: ${sourceFile}`);
+        core5.debug(`Caching tool ${tool} ${version} ${arch2}`);
+        core5.debug(`source file: ${sourceFile}`);
         if (!fs2.statSync(sourceFile).isFile()) {
           throw new Error("sourceFile is not a file");
         }
         const destFolder = yield _createToolPath(tool, version, arch2);
         const destPath = path4.join(destFolder, targetFile);
-        core6.debug(`destination file ${destPath}`);
+        core5.debug(`destination file ${destPath}`);
         yield io.cp(sourceFile, destPath);
         _completeToolPath(tool, version, arch2);
         return destFolder;
@@ -103828,12 +103828,12 @@ var require_tool_cache = __commonJS({
       if (versionSpec) {
         versionSpec = semver3.clean(versionSpec) || "";
         const cachePath = path4.join(_getCacheDirectory(), toolName, versionSpec, arch2);
-        core6.debug(`checking cache: ${cachePath}`);
+        core5.debug(`checking cache: ${cachePath}`);
         if (fs2.existsSync(cachePath) && fs2.existsSync(`${cachePath}.complete`)) {
-          core6.debug(`Found tool in cache ${toolName} ${versionSpec} ${arch2}`);
+          core5.debug(`Found tool in cache ${toolName} ${versionSpec} ${arch2}`);
           toolPath = cachePath;
         } else {
-          core6.debug("not found");
+          core5.debug("not found");
         }
       }
       return toolPath;
@@ -103857,14 +103857,14 @@ var require_tool_cache = __commonJS({
       return versions;
     }
     exports2.findAllVersions = findAllVersions;
-    function getManifestFromRepo(owner2, repo2, auth, branch = "master") {
+    function getManifestFromRepo(owner, repo, auth, branch = "master") {
       return __awaiter2(this, void 0, void 0, function* () {
         let releases = [];
-        const treeUrl = `https://api.github.com/repos/${owner2}/${repo2}/git/trees/${branch}`;
+        const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}`;
         const http = new httpm.HttpClient("tool-cache");
         const headers = {};
         if (auth) {
-          core6.debug("set auth");
+          core5.debug("set auth");
           headers.authorization = auth;
         }
         const response = yield http.getJson(treeUrl, headers);
@@ -103885,7 +103885,7 @@ var require_tool_cache = __commonJS({
           try {
             releases = JSON.parse(versionsRaw);
           } catch (_a) {
-            core6.debug("Invalid json");
+            core5.debug("Invalid json");
           }
         }
         return releases;
@@ -103911,7 +103911,7 @@ var require_tool_cache = __commonJS({
     function _createToolPath(tool, version, arch2) {
       return __awaiter2(this, void 0, void 0, function* () {
         const folderPath = path4.join(_getCacheDirectory(), tool, semver3.clean(version) || version, arch2 || "");
-        core6.debug(`destination ${folderPath}`);
+        core5.debug(`destination ${folderPath}`);
         const markerPath = `${folderPath}.complete`;
         yield io.rmRF(folderPath);
         yield io.rmRF(markerPath);
@@ -103923,19 +103923,19 @@ var require_tool_cache = __commonJS({
       const folderPath = path4.join(_getCacheDirectory(), tool, semver3.clean(version) || version, arch2 || "");
       const markerPath = `${folderPath}.complete`;
       fs2.writeFileSync(markerPath, "");
-      core6.debug("finished caching tool");
+      core5.debug("finished caching tool");
     }
     function isExplicitVersion(versionSpec) {
       const c = semver3.clean(versionSpec) || "";
-      core6.debug(`isExplicit: ${c}`);
+      core5.debug(`isExplicit: ${c}`);
       const valid = semver3.valid(c) != null;
-      core6.debug(`explicit? ${valid}`);
+      core5.debug(`explicit? ${valid}`);
       return valid;
     }
     exports2.isExplicitVersion = isExplicitVersion;
     function evaluateVersions(versions, versionSpec) {
       let version = "";
-      core6.debug(`evaluating ${versions.length} versions`);
+      core5.debug(`evaluating ${versions.length} versions`);
       versions = versions.sort((a, b) => {
         if (semver3.gt(a, b)) {
           return 1;
@@ -103951,9 +103951,9 @@ var require_tool_cache = __commonJS({
         }
       }
       if (version) {
-        core6.debug(`matched: ${version}`);
+        core5.debug(`matched: ${version}`);
       } else {
-        core6.debug("match not found");
+        core5.debug("match not found");
       }
       return version;
     }
@@ -107229,7 +107229,7 @@ var require_semver4 = __commonJS({
 
 // src/post.ts
 var process3 = __toESM(require("node:process"), 1);
-var core5 = __toESM(require_core(), 1);
+var core4 = __toESM(require_core(), 1);
 
 // src/cache.ts
 var crypto2 = __toESM(require("node:crypto"), 1);
@@ -107618,14 +107618,14 @@ function composeOpamCachePaths() {
   const paths = [OPAM_ROOT, opamLocalCachePath];
   if (PLATFORM === "windows") {
     const {
-      repo: { repo: repo2 }
+      repo: { repo }
     } = github3.context;
     const opamCygwinLocalCachePath = path3.posix.join(
       "/cygdrive",
       "d",
       "a",
-      repo2,
-      repo2,
+      repo,
+      repo,
       "_opam"
     );
     paths.push(opamCygwinLocalCachePath);
@@ -107717,41 +107717,10 @@ async function saveOpamCache() {
   });
 }
 
-// src/dune.ts
-var core4 = __toESM(require_core(), 1);
-var import_exec3 = __toESM(require_exec(), 1);
-var github4 = __toESM(require_github(), 1);
-var {
-  repo: { owner, repo },
-  runId: run_id
-} = github4.context;
-async function trimDuneCache() {
-  await core4.group("Clearing old dune cache files to save space", async () => {
-    const octokit = github4.getOctokit(GITHUB_TOKEN, void 0, retry);
-    const {
-      data: { total_count: totalCount }
-    } = await octokit.rest.actions.listJobsForWorkflowRun({
-      owner,
-      repo,
-      run_id
-    });
-    const cacheSize = Math.floor(5e3 / totalCount);
-    await (0, import_exec3.exec)("opam", [
-      "exec",
-      "--",
-      "dune",
-      "cache",
-      "trim",
-      `--size=${cacheSize}MB`
-    ]);
-  });
-}
-
 // src/post.ts
 async function run() {
   try {
     if (DUNE_CACHE) {
-      await trimDuneCache();
       await saveDuneCache();
     }
     if (SAVE_OPAM_POST_RUN) {
@@ -107760,7 +107729,7 @@ async function run() {
     process3.exit(0);
   } catch (error2) {
     if (error2 instanceof Error) {
-      core5.error(error2.message);
+      core4.error(error2.message);
     }
     process3.exit(0);
   }

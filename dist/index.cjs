@@ -75377,11 +75377,11 @@ var require_github = __commonJS({
     var Context = __importStar2(require_context());
     var utils_1 = require_utils6();
     exports2.context = new Context.Context();
-    function getOctokit4(token, options, ...additionalPlugins) {
+    function getOctokit3(token, options, ...additionalPlugins) {
       const GitHubWithPlugins = utils_1.GitHub.plugin(...additionalPlugins);
       return new GitHubWithPlugins((0, utils_1.getOctokitOptions)(token, options));
     }
-    exports2.getOctokit = getOctokit4;
+    exports2.getOctokit = getOctokit3;
   }
 });
 

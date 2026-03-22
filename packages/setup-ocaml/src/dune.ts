@@ -14,25 +14,3 @@ export async function installDune() {
     await exec("opam", ["install", "dune"]);
   });
 }
-
-export async function trimDuneCache() {
-  await core.group("Clearing old dune cache files to save space", async () => {
-    const octokit = github.getOctokit(GITHUB_TOKEN, undefined, retry);
-    const {
-      data: { total_count: totalCount },
-    } = await octokit.rest.actions.listJobsForWorkflowRun({
-      owner,
-      repo,
-      run_id,
-    });
-    const cacheSize = Math.floor(5000 / totalCount);
-    await exec("opam", [
-      "exec",
-      "--",
-      "dune",
-      "cache",
-      "trim",
-      `--size=${cacheSize}MB`,
-    ]);
-  });
-}

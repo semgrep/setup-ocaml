@@ -11,6 +11,7 @@ import {
   ARCHITECTURE,
   CACHE_PREFIX,
   DUNE_CACHE_ROOT,
+  DUNE_CACHE_VHDX_PATH,
   GITHUB_WORKSPACE,
   OPAM_DISABLE_SANDBOXING,
   OPAM_REPOSITORIES,
@@ -21,6 +22,7 @@ import {
 } from "./constants.js";
 import { latestOpamRelease } from "./opam.js";
 import { resolvedCompiler } from "./version.js";
+import { attachDuneCacheVhdx, createDuneCacheVhdx, detachDuneCacheVhdx } from "./vhdx.js";
 
 async function composeDuneCacheKeys() {
   const { workflow, job, runId } = github.context;
@@ -79,6 +81,10 @@ async function composeOpamCacheKeys() {
 }
 
 function composeDuneCachePaths() {
+  // On Windows we cache the single VHDX image, not the unpacked cache tree.
+  if (PLATFORM === "windows") {
+    return [DUNE_CACHE_VHDX_PATH];
+  }
   return [DUNE_CACHE_ROOT];
 }
 
@@ -165,6 +171,15 @@ export async function restoreDuneCache() {
     const { key, restoreKeys } = await composeDuneCacheKeys();
     const paths = composeDuneCachePaths();
     const cacheKey = await restoreCache(key, restoreKeys, paths);
+    if (PLATFORM === "windows") {
+      // The cache holds a single VHDX image. Make its contents available by
+      // attaching the restored image, or by creating a fresh one on a miss.
+      if (cacheKey) {
+        await attachDuneCacheVhdx();
+      } else {
+        await createDuneCacheVhdx();
+      }
+    }
     return cacheKey;
   });
 }
@@ -181,6 +196,10 @@ export async function saveDuneCache() {
   await core.group("Saving dune cache", async () => {
     const { key } = await composeDuneCacheKeys();
     const paths = composeDuneCachePaths();
+    if (PLATFORM === "windows") {
+      // Detach so the image file is flushed and unlocked before it is cached.
+      await detachDuneCacheVhdx();
+    }
     await saveCache(key, paths);
   });
 }

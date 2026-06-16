@@ -119,6 +119,15 @@ export const DUNE_CACHE_ROOT = (() => {
   return path.join(os.homedir(), ".cache", "dune");
 })();
 
+// On Windows the dune cache is stored inside a single VHDX image rather than
+// cached as a tree of many small files (see vhdx.ts). DUNE_CACHE_ROOT is the
+// folder the image is mounted at; this is the image file that is cached.
+export const DUNE_CACHE_VHDX_PATH = path.join("C:", "dune-cache.vhdx");
+
+// Maximum size, in MiB, of the (expandable) dune cache image. Expandable means
+// the file only grows to the space actually used, so this is just a ceiling.
+export const DUNE_CACHE_VHDX_MAX_SIZE_MB = 51_200; // 50 GiB
+
 // ── Action Inputs ──
 
 export const OCAML_COMPILER = core.getInput("ocaml-compiler", {

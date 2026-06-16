@@ -124,9 +124,7 @@ export const DUNE_CACHE_ROOT = (() => {
 // folder the image is mounted at; this is the image file that is cached.
 export const DUNE_CACHE_VHDX_PATH = path.join("C:", "dune-cache.vhdx");
 
-// Maximum size, in MiB, of the (expandable) dune cache image. Expandable means
-// the file only grows to the space actually used, so this is just a ceiling.
-export const DUNE_CACHE_VHDX_MAX_SIZE_MB = 51_200; // 50 GiB
+export const DUNE_CACHE_VHDX_MAX_SIZE_MB = 4_096;
 
 // ── Action Inputs ──
 

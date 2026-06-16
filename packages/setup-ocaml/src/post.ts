@@ -2,12 +2,10 @@ import * as process from "node:process";
 import * as core from "@actions/core";
 import { saveDuneCache, saveOpamCache } from "./cache.js";
 import { DUNE_CACHE, SAVE_OPAM_POST_RUN } from "./constants.js";
-import { trimDuneCache } from "./dune.js";
 
 async function run() {
   try {
     if (DUNE_CACHE) {
-      await trimDuneCache();
       await saveDuneCache();
     }
     if (SAVE_OPAM_POST_RUN) {

@@ -1,9 +1,9 @@
 import * as crypto from "node:crypto";
 import * as path from "node:path";
+import type { DownloadOptions } from "@actions/cache";
 import * as cache from "@actions/cache";
-import type { DownloadOptions } from "@actions/cache/lib/options.js";
 import * as core from "@actions/core";
-import { exec } from "@actions/exec";
+import { exec, getExecOutput } from "@actions/exec";
 import * as github from "@actions/github";
 import { backOff } from "exponential-backoff";
 import * as system from "systeminformation";
@@ -16,6 +16,8 @@ import {
   OPAM_REPOSITORIES,
   OPAM_ROOT,
   PLATFORM,
+  WINDOWS_COMPILER,
+  WINDOWS_ENVIRONMENT,
 } from "./constants.js";
 import { latestOpamRelease } from "./opam.js";
 import { resolvedCompiler } from "./version.js";
@@ -35,13 +37,22 @@ async function composeDuneCacheKeys() {
   return { key, restoreKeys };
 }
 
+async function getMsvcVersion() {
+  const { stdout } = await getExecOutput(
+    "vswhere",
+    ["-latest", "-property", "installationVersion"],
+    { silent: true },
+  );
+  return stdout.trim();
+}
+
 async function composeOpamCacheKeys() {
   const { version: opamVersion } = await latestOpamRelease;
   const sandbox = OPAM_DISABLE_SANDBOXING ? "nosandbox" : "sandbox";
   const ocamlCompiler = await resolvedCompiler;
   const repositoryUrls = OPAM_REPOSITORIES.map(([_, value]) => value).join();
   const osInfo = await system.osInfo();
-  const plainKey = [
+  const components = [
     PLATFORM,
     osInfo.release,
     ARCHITECTURE,
@@ -49,8 +60,17 @@ async function composeOpamCacheKeys() {
     ocamlCompiler,
     repositoryUrls,
     sandbox,
-    "v2",
-  ].join();
+  ];
+  if (PLATFORM === "windows") {
+    components.push(WINDOWS_ENVIRONMENT);
+    components.push(WINDOWS_COMPILER);
+    if (WINDOWS_COMPILER === "msvc") {
+      const msvcVersion = await getMsvcVersion();
+      components.push(msvcVersion);
+    }
+  }
+  components.push("v2");
+  const plainKey = components.join();
   const hash = crypto.createHash("sha256").update(plainKey).digest("hex");
   const key = `${CACHE_PREFIX}-setup-ocaml-opam-${hash}`;
   const restoreKeys = [key];
@@ -59,8 +79,7 @@ async function composeOpamCacheKeys() {
 }
 
 function composeDuneCachePaths() {
-  const paths = [DUNE_CACHE_ROOT];
-  return paths;
+  return [DUNE_CACHE_ROOT];
 }
 
 function composeOpamCachePaths() {
@@ -70,15 +89,14 @@ function composeOpamCachePaths() {
     const {
       repo: { repo },
     } = github.context;
-    const opamCygwinLocalCachePath = path.posix.join(
-      "/cygdrive",
-      "d",
-      "a",
-      repo,
-      repo,
-      "_opam",
-    );
-    paths.push(opamCygwinLocalCachePath);
+    if (WINDOWS_ENVIRONMENT === "msys2") {
+      const opamMsys2LocalCachePath = path.posix.join("/d", "a", repo, repo, "_opam");
+      paths.push(opamMsys2LocalCachePath);
+    }
+    if (WINDOWS_ENVIRONMENT === "cygwin") {
+      const opamCygwinLocalCachePath = path.posix.join("/cygdrive", "d", "a", repo, repo, "_opam");
+      paths.push(opamCygwinLocalCachePath);
+    }
   }
   return paths;
 }
@@ -105,9 +123,7 @@ async function restoreCache(
     if (cacheKey) {
       core.info(`Cache restored from key: ${cacheKey}`);
     } else {
-      core.info(
-        `Cache is not found for input keys: ${[key, ...restoreKeys].join(", ")}`,
-      );
+      core.info(`Cache is not found for input keys: ${[key, ...restoreKeys].join(", ")}`);
     }
     return cacheKey;
   } catch (error) {
@@ -153,17 +169,11 @@ export async function restoreDuneCache() {
   });
 }
 
-async function restoreOpamCache() {
-  const { key, restoreKeys } = await composeOpamCacheKeys();
-  const paths = composeOpamCachePaths();
-  const cacheKey = await restoreCache(key, restoreKeys, paths);
-  return cacheKey;
-}
-
-export async function restoreOpamCaches() {
+export async function restoreOpamCache() {
   return await core.group("Restoring opam cache", async () => {
-    const opamCacheHit = await restoreOpamCache();
-    return { opamCacheHit };
+    const { key, restoreKeys } = await composeOpamCacheKeys();
+    const paths = composeOpamCachePaths();
+    return await restoreCache(key, restoreKeys, paths);
   });
 }
 
@@ -183,9 +193,7 @@ export async function saveOpamCache() {
       lookupOnly: true,
     });
     if (cacheHit) {
-      core.info(
-        "Cache entry with the same key, version, and scope already exists",
-      );
+      core.info("Cache entry with the same key, version, and scope already exists");
     } else {
       await exec("opam", [
         "clean",

@@ -5,6 +5,8 @@ import * as process from "node:process";
 import * as core from "@actions/core";
 import * as yaml from "yaml";
 
+// ── Platform & Architecture ──
+
 export const ARCHITECTURE = (() => {
   switch (process.arch) {
     case "arm": {
@@ -35,21 +37,15 @@ export const PLATFORM = (() => {
     case "darwin": {
       return "macos";
     }
-    case "freebsd": {
-      return "freebsd";
-    }
     case "linux": {
       return "linux";
-    }
-    case "openbsd": {
-      return "openbsd";
     }
     case "win32": {
       return "windows";
     }
     default: {
       throw new Error(
-        `'${process.platform}' is not supported. Supported platforms: darwin, freebsd, linux, openbsd, win32`,
+        `'${process.platform}' is not supported. Supported platforms: darwin, linux, win32`,
       );
     }
   }
@@ -60,11 +56,10 @@ export const DISTRO = (() => {
     const osRelease = fs.readFileSync("/etc/os-release");
     const match = osRelease.toString().match(/^ID=(.*)$/m);
     return match ? match[1] : "(unknown)";
-  } catch (_e) {
+  } catch {
     return "(unknown)";
   }
 })();
-export const GITHUB_WORKSPACE = process.env.GITHUB_WORKSPACE ?? process.cwd();
 
 // Extra packages to install with opam's internal Cygwin (opam defaults: make, tar, unzip, rsync)
 export const CYGWIN_EXTRA_PACKAGES = [
@@ -78,29 +73,6 @@ export const CYGWIN_EXTRA_PACKAGES = [
   "patch",
   "perl",
 ];
-
-export const DUNE_CACHE_ROOT = (() => {
-  const xdgCacheHome = process.env.XDG_CACHE_HOME;
-  if (xdgCacheHome) {
-    return path.join(xdgCacheHome, "dune");
-  }
-  if (PLATFORM === "windows") {
-    return path.join("C:", "dune");
-  }
-  return path.join(os.homedir(), ".cache", "dune");
-})();
-
-export const OPAM_ROOT = (() => {
-  if (PLATFORM === "windows") {
-    return path.join("C:", ".opam");
-  }
-  return path.join(os.homedir(), ".opam");
-})();
-
-// opam's internal Cygwin installation paths (only used on Windows)
-export const CYGWIN_ROOT = path.join(OPAM_ROOT, ".cygwin", "root");
-
-export const CYGWIN_ROOT_BIN = path.join(CYGWIN_ROOT, "bin");
 
 export const RUNNER_ENVIRONMENT = ((): "github-hosted" | "self-hosted" => {
   const ImageOS = process.env.ImageOS;
@@ -117,15 +89,37 @@ export const RUNNER_ENVIRONMENT = ((): "github-hosted" | "self-hosted" => {
   return RUNNER_ENVIRONMENT;
 })();
 
-export const ALLOW_PRERELEASE_OPAM = core.getBooleanInput(
-  "allow-prerelease-opam",
-);
+// ── Paths ──
 
-export const CACHE_PREFIX = core.getInput("cache-prefix");
+export const GITHUB_WORKSPACE = process.env.GITHUB_WORKSPACE ?? process.cwd();
 
-export const GITHUB_TOKEN = core.getInput("github-token");
+export const MSYS2_ROOT = path.join("C:", "msys64");
 
-export const DUNE_CACHE = core.getBooleanInput("dune-cache");
+export const OPAM_ROOT = (() => {
+  if (PLATFORM === "windows") {
+    return path.join("C:", ".opam");
+  }
+  return path.join(os.homedir(), ".opam");
+})();
+
+export const CYGWIN_ROOT = path.join(OPAM_ROOT, ".cygwin", "root");
+
+export const CYGWIN_ROOT_BIN = path.join(CYGWIN_ROOT, "bin");
+
+export const CYGWIN_BASH_ENV = path.join(CYGWIN_ROOT, "bash_env");
+
+export const DUNE_CACHE_ROOT = (() => {
+  const xdgCacheHome = process.env.XDG_CACHE_HOME;
+  if (xdgCacheHome) {
+    return path.join(xdgCacheHome, "dune");
+  }
+  if (PLATFORM === "windows") {
+    return path.join("C:", "dune");
+  }
+  return path.join(os.homedir(), ".cache", "dune");
+})();
+
+// ── Action Inputs ──
 
 export const OCAML_COMPILER = core.getInput("ocaml-compiler", {
   required: true,
@@ -133,17 +127,56 @@ export const OCAML_COMPILER = core.getInput("ocaml-compiler", {
 
 export const SAVE_OPAM_POST_RUN = core.getBooleanInput("save-opam-post-run");
 
+export const OPAM_REPOSITORIES: [string, string][] = (() => {
+  // The failsafe schema treats every scalar as a string, preventing
+  // implicit type coercion (e.g. `true` → boolean, `1.0` → number).
+  const parsed: unknown = yaml.parse(core.getInput("opam-repositories"), {
+    schema: "failsafe",
+  });
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new Error("opam-repositories input must be a YAML mapping of name: URL pairs");
+  }
+  const entries = Object.entries(parsed as Record<string, string>);
+  if (entries.length === 0) {
+    throw new Error("opam-repositories input must not be empty");
+  }
+  return entries.reverse();
+})();
+
+export const OPAM_PIN = core.getBooleanInput("opam-pin");
+
+export const OPAM_LOCAL_PACKAGES = core.getInput("opam-local-packages");
+
 export const OPAM_DISABLE_SANDBOXING =
   // [TODO] unlock this once sandboxing is supported on Windows
   PLATFORM !== "windows" && core.getBooleanInput("opam-disable-sandboxing");
 
-export const OPAM_LOCAL_PACKAGES = core.getInput("opam-local-packages");
+export const DUNE_CACHE = core.getBooleanInput("dune-cache");
 
-export const OPAM_PIN = core.getBooleanInput("opam-pin");
+export const CACHE_PREFIX = core.getInput("cache-prefix");
 
-export const OPAM_REPOSITORIES: [string, string][] = (() => {
-  const repositoriesYaml = yaml.parse(
-    core.getInput("opam-repositories"),
-  ) as Record<string, string>;
-  return Object.entries(repositoriesYaml).reverse();
+type WindowsEnvironment = "cygwin" | "msys2";
+
+export const WINDOWS_ENVIRONMENT: WindowsEnvironment = (() => {
+  const value = core.getInput("windows-environment").toLowerCase();
+  if (value !== "cygwin" && value !== "msys2") {
+    throw new Error(
+      `Invalid windows-environment value '${value}'. Supported values: cygwin, msys2`,
+    );
+  }
+  return value;
 })();
+
+type WindowsCompiler = "mingw" | "msvc";
+
+export const WINDOWS_COMPILER: WindowsCompiler = (() => {
+  const value = core.getInput("windows-compiler").toLowerCase();
+  if (value !== "mingw" && value !== "msvc") {
+    throw new Error(`Invalid windows-compiler value '${value}'. Supported values: mingw, msvc`);
+  }
+  return value;
+})();
+
+export const ALLOW_PRERELEASE_OPAM = core.getBooleanInput("allow-prerelease-opam");
+
+export const GITHUB_TOKEN = core.getInput("github-token");

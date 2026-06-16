@@ -1,21 +1,15 @@
 {
   "name": "@ocaml/lint-fmt",
   "private": true,
-  "sideEffects": false,
   "type": "module",
-  "scripts": {
-    "build": "esbuild --bundle --format=cjs --outfile=../../lint-fmt/dist/index.cjs --platform=node --target=node24 src/index.ts",
-    "typecheck": "tsc"
-  },
-  "dependencies": {
-    "@actions/core": "1.11.1",
-    "@actions/exec": "1.1.1"
-  },
+  "sideEffects": false,
   "devDependencies": {
-    "@tsconfig/node24": "24.0.3",
+    "@actions/core": "3.0.1",
+    "@actions/exec": "3.0.0",
+    "@tsconfig/node24": "24.0.4",
     "@tsconfig/strictest": "2.0.8",
-    "@types/node": "24.10.1",
-    "esbuild": "0.27.0",
-    "typescript": "5.9.3"
+    "@types/node": "24.12.4",
+    "typescript": "6.0.3",
+    "vite-plus": "0.1.23"
   }
 }

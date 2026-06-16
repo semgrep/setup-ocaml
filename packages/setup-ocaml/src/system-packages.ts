@@ -1,7 +1,8 @@
 import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import * as core from "@actions/core";
 import { exec, getExecOutput } from "@actions/exec";
-import { DISTRO, PLATFORM, RUNNER_ENVIRONMENT } from "./constants.js";
+import { DISTRO, MSYS2_ROOT, PLATFORM, RUNNER_ENVIRONMENT, WINDOWS_COMPILER } from "./constants.js";
 
 async function checkInstallability(packageName: string) {
   let output = null;
@@ -18,9 +19,7 @@ async function checkInstallability(packageName: string) {
   return output.stdout.length > 0;
 }
 
-async function retrieveInstallableOptionalDependencies(
-  optionalDependencies: string[],
-) {
+async function retrieveInstallableOptionalDependencies(optionalDependencies: string[]) {
   switch (PLATFORM) {
     case "linux": {
       const installableOptionalDependencies: string[] = [];
@@ -77,13 +76,12 @@ export async function installUnixSystemPackages() {
   switch (PLATFORM) {
     case "linux": {
       await disableManDbAutoUpdate();
-      const optionalDependencies =
-        await retrieveInstallableOptionalDependencies([
-          "darcs",
-          "g++-multilib",
-          "gcc-multilib",
-          "mercurial",
-        ]);
+      const optionalDependencies = await retrieveInstallableOptionalDependencies([
+        "darcs",
+        "g++-multilib",
+        "gcc-multilib",
+        "mercurial",
+      ]);
       await exec("sudo", [
         "apt-get",
         "--yes",
@@ -100,6 +98,23 @@ export async function installUnixSystemPackages() {
       break;
     }
   }
+}
+
+export async function installMsys2Packages() {
+  // Install the same base packages that opam's --cygwin-internal-install
+  // provides for Cygwin (see opamInitDefaults.ml required_packages_for_cygwin).
+  // MSYS2 packages are installed to C:\msys64 which is outside the opam cache,
+  // so they must be pre-installed. MSVC builds use cl.exe instead of GCC.
+  const packages = ["make", "tar", "unzip", "rsync"];
+  if (WINDOWS_COMPILER === "mingw") {
+    packages.push("mingw-w64-x86_64-gcc");
+  }
+  await exec(path.join(MSYS2_ROOT, "usr", "bin", "pacman.exe"), [
+    "-S",
+    "--noconfirm",
+    "--needed",
+    ...packages,
+  ]);
 }
 
 export async function updateUnixPackageIndexFiles() {

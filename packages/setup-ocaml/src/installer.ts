@@ -1,20 +1,22 @@
-import * as fs from "node:fs/promises";
+import { promises as fs } from "node:fs";
 import * as os from "node:os";
-import * as path from "node:path";
 import * as process from "node:process";
 import * as core from "@actions/core";
 import { exec } from "@actions/exec";
-import { restoreDuneCache, restoreOpamCaches, saveOpamCache } from "./cache.js";
+import * as glob from "@actions/glob";
+import { restoreDuneCache, restoreOpamCache, saveOpamCache } from "./cache.js";
 import {
-  CYGWIN_ROOT,
+  CYGWIN_BASH_ENV,
   CYGWIN_ROOT_BIN,
   DUNE_CACHE,
   DUNE_CACHE_ROOT,
+  OPAM_LOCAL_PACKAGES,
   OPAM_PIN,
   OPAM_REPOSITORIES,
   OPAM_ROOT,
   PLATFORM,
   SAVE_OPAM_POST_RUN,
+  WINDOWS_ENVIRONMENT,
 } from "./constants.js";
 import { installDune } from "./dune.js";
 import {
@@ -25,8 +27,10 @@ import {
   setupOpam,
   update,
 } from "./opam.js";
-import { retrieveOpamLocalPackages } from "./packages.js";
 import { resolvedCompiler } from "./version.js";
+
+// 10 minutes — the 0install solver can be slow on large dependency trees.
+const OPAM_SOLVER_TIMEOUT = 600;
 
 export async function installer() {
   if (core.isDebug()) {
@@ -40,33 +44,37 @@ export async function installer() {
   core.exportVariable("OPAMPRECISETRACKING", 1);
   core.exportVariable("OPAMRETRIES", 10);
   core.exportVariable("OPAMROOT", OPAM_ROOT);
-  core.exportVariable("OPAMSOLVERTIMEOUT", 600);
+  core.exportVariable("OPAMSOLVERTIMEOUT", OPAM_SOLVER_TIMEOUT);
   core.exportVariable("OPAMYES", 1);
   if (PLATFORM === "windows") {
-    core.exportVariable("CYGWIN", "winsymlinks:native");
     core.exportVariable("HOME", process.env.USERPROFILE);
     core.exportVariable("MSYS", "winsymlinks:native");
+    if (WINDOWS_ENVIRONMENT === "cygwin") {
+      core.exportVariable("CYGWIN", "winsymlinks:native");
+    }
     await core.group("Configuring Windows symlink settings", async () => {
       await exec("fsutil", ["behavior", "query", "SymlinkEvaluation"]);
-      // [INFO] https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/fsutil-behavior
+      // Enable Remote-to-Local and Remote-to-Remote symlink evaluation.
+      // https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/fsutil-behavior
       await exec("fsutil", [
         "behavior",
         "set",
         "symlinkEvaluation",
-        "R2L:1",
-        "R2R:1",
+        "R2L:1", // Remote-to-Local
+        "R2R:1", // Remote-to-Remote
       ]);
       await exec("fsutil", ["behavior", "query", "SymlinkEvaluation"]);
     });
   }
-  const { opamCacheHit } = await restoreOpamCaches();
+  const opamCacheHit = await restoreOpamCache();
   await setupOpam();
-  if (PLATFORM === "windows") {
-    const bashEnvPath = path.join(CYGWIN_ROOT, "bash_env");
-    await fs.writeFile(bashEnvPath, "set -o igncr");
-    core.exportVariable("BASH_ENV", bashEnvPath);
+  if (PLATFORM === "windows" && WINDOWS_ENVIRONMENT === "cygwin") {
+    await fs.writeFile(CYGWIN_BASH_ENV, "set -o igncr");
+    core.exportVariable("BASH_ENV", CYGWIN_BASH_ENV);
     core.addPath(CYGWIN_ROOT_BIN);
   }
+  // This fork always re-syncs opam repositories, even on a cache hit, so the
+  // repository list always matches the `opam-repositories` input.
   await repositoryRemoveAll();
   await repositoryAddAll(OPAM_REPOSITORIES);
   if (!opamCacheHit) {
@@ -85,7 +93,8 @@ export async function installer() {
   }
   core.exportVariable("CLICOLOR_FORCE", "1");
   if (OPAM_PIN) {
-    const fnames = await retrieveOpamLocalPackages();
+    const globber = await glob.create(OPAM_LOCAL_PACKAGES);
+    const fnames = await globber.glob();
     await pin(fnames);
   }
   await exec("opam", ["config", "report"]);

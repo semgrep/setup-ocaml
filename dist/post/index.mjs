@@ -1,0 +1,1 @@
+import{C as e,D as t,a as n,g as r,n as i,o as a}from"../dune.mjs";import*as o from"node:process";async function s(){try{r&&(await i(),await n()),e&&await a(),o.exit(0)}catch(e){e instanceof Error&&t(e.message),o.exit(0)}}s();export{};

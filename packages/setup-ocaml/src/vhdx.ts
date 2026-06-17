@@ -36,6 +36,34 @@ async function runDiskpart(commands: string[]) {
   }
 }
 
+// Best-effort: stop Windows Defender from holding transient handles on files
+// dune writes into the cache. When real-time scanning has a just-written file
+// open, Windows marks it delete-pending but leaves the directory entry, so
+// dune's copy-mode store fails cleaning up its staging dir with
+// "rmdir: Directory not empty". Excluding the cache volume avoids the scan.
+// Also reports Defender status so we can tell whether it is active at all.
+async function hardenCacheVolumeAgainstHandleHolders() {
+  const driveRoot = `${DUNE_CACHE_VHDX_DRIVE_LETTER}:\\`;
+  const scriptPath = path.join(os.tmpdir(), `setup-ocaml-dune-vhdx-${process.pid}.ps1`);
+  await fs.writeFile(
+    scriptPath,
+    [
+      "try { Get-MpComputerStatus | Select-Object RealTimeProtectionEnabled, IsTamperProtected | Format-List }",
+      'catch { Write-Host "Defender status unavailable: $($_.Exception.Message)" }',
+      `Add-MpPreference -ExclusionPath '${driveRoot}' -ErrorAction SilentlyContinue`,
+    ].join("\n"),
+  );
+  try {
+    await exec("powershell", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", scriptPath]);
+  } catch (error) {
+    if (error instanceof Error) {
+      core.warning(`Failed to exclude dune cache volume from Defender: ${error.message}`);
+    }
+  } finally {
+    await fs.rm(scriptPath, { force: true });
+  }
+}
+
 // Create a fresh, empty dune cache image and mount it at the drive letter.
 // Used on a cache miss (no image was restored). The image is `expandable`, so
 // the on-disk file only grows to the space actually used, up to the maximum.
@@ -49,6 +77,7 @@ export async function createDuneCacheVhdx() {
     `assign letter=${DUNE_CACHE_VHDX_DRIVE_LETTER}`,
   ]);
   await fs.mkdir(DUNE_CACHE_ROOT, { recursive: true });
+  await hardenCacheVolumeAgainstHandleHolders();
 }
 
 // Attach a previously-cached dune cache image and mount it at the drive letter.
@@ -63,6 +92,7 @@ export async function attachDuneCacheVhdx() {
     `assign letter=${DUNE_CACHE_VHDX_DRIVE_LETTER}`,
   ]);
   await fs.mkdir(DUNE_CACHE_ROOT, { recursive: true });
+  await hardenCacheVolumeAgainstHandleHolders();
 }
 
 // Detach the image so the .vhdx file is flushed, consistent, and unlocked

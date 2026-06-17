@@ -22,6 +22,7 @@ import {
   DUNE_CACHE_VHDX_DRIVE_LETTER,
   DUNE_CACHE_VHDX_MAX_SIZE_MB,
   DUNE_CACHE_VHDX_PATH,
+  GITHUB_WORKSPACE,
 } from "./constants.js";
 
 // Run a diskpart script. diskpart reads its commands from a file (`/s`), so we
@@ -93,6 +94,22 @@ export async function attachDuneCacheVhdx() {
   ]);
   await fs.mkdir(DUNE_CACHE_ROOT, { recursive: true });
   await hardenCacheVolumeAgainstHandleHolders();
+}
+
+// Put the dune build dir on the same volume as the cache so dune can use
+// `hardlink` storage mode (hardlinks cannot cross volumes). We junction the
+// workspace `_build` onto the cache volume rather than relocating it, so the
+// consumer's relative `_build/...` paths keep resolving. `_build` therefore
+// also lives in the image and is persisted across runs, which only helps
+// incremental builds.
+export async function colocateBuildDirOnCacheVolume() {
+  const cacheVolumeBuildDir = path.join(`${DUNE_CACHE_VHDX_DRIVE_LETTER}:\\`, "_build");
+  const workspaceBuildDir = path.join(GITHUB_WORKSPACE, "_build");
+  await fs.mkdir(cacheVolumeBuildDir, { recursive: true });
+  // A fresh checkout has no `_build` yet; remove any stale one so the junction
+  // can be created.
+  await fs.rm(workspaceBuildDir, { recursive: true, force: true });
+  await exec("cmd", ["/c", "mklink", "/J", workspaceBuildDir, cacheVolumeBuildDir]);
 }
 
 // Detach the image so the .vhdx file is flushed, consistent, and unlocked

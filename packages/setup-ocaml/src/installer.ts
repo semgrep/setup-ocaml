@@ -91,7 +91,10 @@ export async function installer() {
     await installDune();
     core.exportVariable("DUNE_CACHE_ROOT", DUNE_CACHE_ROOT);
     core.exportVariable("DUNE_CACHE", "enabled");
-    core.exportVariable("DUNE_CACHE_STORAGE_MODE", "copy");
+    // On Windows the cache lives on its own VHDX volume, with the build dir
+    // junctioned onto the same volume (see restoreDuneCache), so hardlink mode
+    // works and avoids copy mode's "rmdir: Directory not empty" failures.
+    core.exportVariable("DUNE_CACHE_STORAGE_MODE", PLATFORM === "windows" ? "hardlink" : "copy");
   }
   core.exportVariable("CLICOLOR_FORCE", "1");
   if (OPAM_PIN) {

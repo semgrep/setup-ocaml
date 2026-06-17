@@ -22,7 +22,12 @@ import {
 } from "./constants.js";
 import { latestOpamRelease } from "./opam.js";
 import { resolvedCompiler } from "./version.js";
-import { attachDuneCacheVhdx, createDuneCacheVhdx, detachDuneCacheVhdx } from "./vhdx.js";
+import {
+  attachDuneCacheVhdx,
+  colocateBuildDirOnCacheVolume,
+  createDuneCacheVhdx,
+  detachDuneCacheVhdx,
+} from "./vhdx.js";
 
 async function composeDuneCacheKeys() {
   const { workflow, job, runId } = github.context;
@@ -179,6 +184,7 @@ export async function restoreDuneCache() {
       } else {
         await createDuneCacheVhdx();
       }
+      await colocateBuildDirOnCacheVolume();
     }
     return cacheKey;
   });

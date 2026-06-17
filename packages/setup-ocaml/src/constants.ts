@@ -123,7 +123,7 @@ export const DUNE_CACHE_ROOT = (() => {
 
 export const DUNE_CACHE_VHDX_PATH = path.join("C:", "dune-cache.vhdx");
 
-export const DUNE_CACHE_VHDX_MAX_SIZE_MB = 4_096;
+export const DUNE_CACHE_VHDX_MAX_SIZE_MB = 12_288;
 
 // ── Action Inputs ──
 

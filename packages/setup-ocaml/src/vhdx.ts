@@ -17,7 +17,12 @@ import * as os from "node:os";
 import * as path from "node:path";
 import * as core from "@actions/core";
 import { exec } from "@actions/exec";
-import { DUNE_CACHE_ROOT, DUNE_CACHE_VHDX_MAX_SIZE_MB, DUNE_CACHE_VHDX_PATH } from "./constants.js";
+import {
+  DUNE_CACHE_ROOT,
+  DUNE_CACHE_VHDX_DRIVE_LETTER,
+  DUNE_CACHE_VHDX_MAX_SIZE_MB,
+  DUNE_CACHE_VHDX_PATH,
+} from "./constants.js";
 
 // Run a diskpart script. diskpart reads its commands from a file (`/s`), so we
 // stage the script in a temp file and clean it up afterwards.
@@ -31,35 +36,33 @@ async function runDiskpart(commands: string[]) {
   }
 }
 
-// Create a fresh, empty dune cache image and mount it at DUNE_CACHE_ROOT.
+// Create a fresh, empty dune cache image and mount it at the drive letter.
 // Used on a cache miss (no image was restored). The image is `expandable`, so
 // the on-disk file only grows to the space actually used, up to the maximum.
 export async function createDuneCacheVhdx() {
-  await fs.mkdir(DUNE_CACHE_ROOT, { recursive: true });
   await runDiskpart([
     `create vdisk file="${DUNE_CACHE_VHDX_PATH}" maximum=${DUNE_CACHE_VHDX_MAX_SIZE_MB} type=expandable`,
     `select vdisk file="${DUNE_CACHE_VHDX_PATH}"`,
     "attach vdisk",
     "create partition primary",
     'format fs=ntfs quick label="dune"',
-    // Mount the volume at an (empty) NTFS folder so DUNE_CACHE_ROOT is unchanged
-    // for the rest of the action.
-    `assign mount="${DUNE_CACHE_ROOT}"`,
+    `assign letter=${DUNE_CACHE_VHDX_DRIVE_LETTER}`,
   ]);
+  await fs.mkdir(DUNE_CACHE_ROOT, { recursive: true });
 }
 
-// Attach a previously-cached dune cache image and mount it at DUNE_CACHE_ROOT.
+// Attach a previously-cached dune cache image and mount it at the drive letter.
 // Used on a cache hit (the .vhdx file was restored to disk).
 export async function attachDuneCacheVhdx() {
-  await fs.mkdir(DUNE_CACHE_ROOT, { recursive: true });
   await runDiskpart([
     `select vdisk file="${DUNE_CACHE_VHDX_PATH}"`,
     "attach vdisk",
     // The image already contains a formatted partition; just re-establish the
-    // mount path (access paths are not persisted across runners).
+    // drive letter (assignments are not persisted across runners).
     "select partition 1",
-    `assign mount="${DUNE_CACHE_ROOT}"`,
+    `assign letter=${DUNE_CACHE_VHDX_DRIVE_LETTER}`,
   ]);
+  await fs.mkdir(DUNE_CACHE_ROOT, { recursive: true });
 }
 
 // Detach the image so the .vhdx file is flushed, consistent, and unlocked

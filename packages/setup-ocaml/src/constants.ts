@@ -108,20 +108,19 @@ export const CYGWIN_ROOT_BIN = path.join(CYGWIN_ROOT, "bin");
 
 export const CYGWIN_BASH_ENV = path.join(CYGWIN_ROOT, "bash_env");
 
+export const DUNE_CACHE_VHDX_DRIVE_LETTER = "X";
+
 export const DUNE_CACHE_ROOT = (() => {
   const xdgCacheHome = process.env.XDG_CACHE_HOME;
   if (xdgCacheHome) {
     return path.join(xdgCacheHome, "dune");
   }
   if (PLATFORM === "windows") {
-    return path.join("C:", "dune");
+    return path.join(`${DUNE_CACHE_VHDX_DRIVE_LETTER}:\\`, "dune");
   }
   return path.join(os.homedir(), ".cache", "dune");
 })();
 
-// On Windows the dune cache is stored inside a single VHDX image rather than
-// cached as a tree of many small files (see vhdx.ts). DUNE_CACHE_ROOT is the
-// folder the image is mounted at; this is the image file that is cached.
 export const DUNE_CACHE_VHDX_PATH = path.join("C:", "dune-cache.vhdx");
 
 export const DUNE_CACHE_VHDX_MAX_SIZE_MB = 4_096;

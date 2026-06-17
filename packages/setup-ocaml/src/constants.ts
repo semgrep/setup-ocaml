@@ -108,16 +108,22 @@ export const CYGWIN_ROOT_BIN = path.join(CYGWIN_ROOT, "bin");
 
 export const CYGWIN_BASH_ENV = path.join(CYGWIN_ROOT, "bash_env");
 
+export const DUNE_CACHE_VHDX_DRIVE_LETTER = "X";
+
 export const DUNE_CACHE_ROOT = (() => {
   const xdgCacheHome = process.env.XDG_CACHE_HOME;
   if (xdgCacheHome) {
     return path.join(xdgCacheHome, "dune");
   }
   if (PLATFORM === "windows") {
-    return path.join("C:", "dune");
+    return path.join(`${DUNE_CACHE_VHDX_DRIVE_LETTER}:\\`, "dune");
   }
   return path.join(os.homedir(), ".cache", "dune");
 })();
+
+export const DUNE_CACHE_VHDX_PATH = path.join("C:", "dune-cache.vhdx");
+
+export const DUNE_CACHE_VHDX_MAX_SIZE_MB = 12_288;
 
 // ── Action Inputs ──
 
